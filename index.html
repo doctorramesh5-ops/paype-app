@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>PayPe AI Builder</title>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -27,7 +28,7 @@
 const { useState, useEffect, useRef } = React;
 
 // ── CONFIG ──────────────────────────────────────────
-const RAZORPAY_KEY = 'rzp_live_XXXXXXXXXXXXXXX'; // Replace with your live key
+const RAZORPAY_KEY = 'rzp_live_SfvAyAFnsUhRKX';
 const MSG91_AUTH   = '509829AWYOD2WY69e4012bP1';
 const MSG91_TMPL   = 'YOUR_TEMPLATE_ID';
 
@@ -441,7 +442,11 @@ function PricingPage({user,onUpgrade}){
 
   const upgrade = (plan) => {
     setSel(plan.id);
-    // Open Razorpay
+    if(!window.Razorpay){
+      alert('Payment system loading... Please try again in a moment.');
+      setSel(null);
+      return;
+    }
     const options = {
       key: RAZORPAY_KEY,
       amount: plan.price * 100,
@@ -449,6 +454,11 @@ function PricingPage({user,onUpgrade}){
       name: 'PayPe Technologies',
       description: `${plan.name} Plan — Monthly`,
       theme: {color:'#f59e0b'},
+      modal: {
+        ondismiss: function(){
+          setSel(null);
+        }
+      },
       handler: function(response){
         user.plan = plan.id;
         user.credits = plan.credits;
@@ -458,15 +468,15 @@ function PricingPage({user,onUpgrade}){
     };
     try{
       const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function(response){
+        setSel(null);
+        alert('Payment failed. Please try again.');
+      });
       rzp.open();
     }catch(e){
-      // Razorpay not loaded — simulate
-      user.plan = plan.id;
-      user.credits = plan.credits;
-      setSuccess(true);
-      setTimeout(()=>{setSuccess(false);setSel(null);onUpgrade({...user});},2000);
+      setSel(null);
+      alert('Payment error. Please refresh and try again.');
     }
-    setSel(null);
   };
 
   return (
@@ -585,6 +595,5 @@ function App(){
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 </html>
