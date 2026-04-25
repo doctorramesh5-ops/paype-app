@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PayPe AI Builder</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  body{margin:0;background:#08080f;font-family:'DM Sans',sans-serif}
+  .spin{animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  textarea:focus{outline:none}
+  input:focus{outline:none}
+  ::-webkit-scrollbar{width:4px;height:4px}
+  ::-webkit-scrollbar-track{background:#0f0f1a}
+  ::-webkit-scrollbar-thumb{background:#f59e0b44;border-radius:4px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const { useState, useEffect, useRef } = React;
+
+// ── CONFIG ──────────────────────────────────────────
+const RAZORPAY_KEY = 'rzp_live_XXXXXXXXXXXXXXX'; // Replace with your live key
+const MSG91_AUTH   = '509829AWYOD2WY69e4012bP1';
+const MSG91_TMPL   = 'YOUR_TEMPLATE_ID';
+
+// ── DB ───────────────────────────────────────────────
+const DB = {
+  users: [{
+    id:'admin-1', name:'Admin', email:'admin@paype.co.in',
+    password:'admin@2025', role:'admin', plan:'enterprise',
+    credits:999999, joined:'Apr 2025', apps:[]
+  }],
+  plans: [
+    { id:'starter',    name:'Starter',    price:749,  credits:20,  apps:5,   color:'#22d3ee' },
+    { id:'pro',        name:'Pro',        price:2499, credits:80,  apps:25,  color:'#a78bfa' },
+    { id:'enterprise', name:'Enterprise', price:8499, credits:999, apps:999, color:'#f59e0b' },
+  ]
+};
+
+const SYSTEM_PROMPT = `You are an expert full-stack developer. When a user describes an app, generate a complete functional React component.
+Return ONLY valid JSON (no markdown, no backticks):
+{"appName":"string","description":"string","code":"string","features":["string"]}
+The code must be self-contained React using only hooks + Tailwind CSS.
+export default function App() { ... }
+Make it production-quality, fully interactive, beautifully designed.`;
+
+const SAMPLES = [
+  {icon:'📊',label:'CRM',prompt:'A CRM dashboard with contacts, deal pipeline and revenue stats'},
+  {icon:'📦',label:'Inventory',prompt:'An inventory system with products, stock levels and alerts'},
+  {icon:'🗂️',label:'Kanban',prompt:'A kanban project board with tasks and columns'},
+  {icon:'👥',label:'HR Portal',prompt:'An HR portal with employee directory and leave requests'},
+  {icon:'💰',label:'Finance',prompt:'A finance dashboard with income, expenses and charts'},
+  {icon:'📋',label:'Tasks',prompt:'A task manager with priorities, due dates and progress'},
+];
+
+const genId = () => Math.random().toString(36).slice(2,10);
+const fmt   = n  => Number(n).toLocaleString('en-IN');
+const now   = () => new Date().toLocaleDateString('en-IN',{month:'short',day:'numeric',year:'numeric'});
+
+// ── LOGO ─────────────────────────────────────────────
+function Logo({size='md'}){
+  return (
+    <div style={{display:'flex',alignItems:'center',gap:8,fontFamily:"'Playfair Display',serif",fontWeight:900,fontSize:size==='lg'?'1.6rem':'1.1rem'}}>
+      <div style={{width:34,height:34,borderRadius:9,background:'linear-gradient(135deg,#f59e0b,#ef4444)',display:'flex',alignItems:'center',justifyContent:'center',color:'#000',fontWeight:900,fontSize:'1rem'}}>P</div>
+      <span style={{color:'#fff'}}>PayPe</span>
+      <span style={{color:'#f59e0b'}}>Technologies</span>
+    </div>
+  );
+}
+
+// ── APP PREVIEW ──────────────────────────────────────
+function AppPreview({code}){
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><script src="https://cdn.tailwindcss.com"><\/script><script src="https://unpkg.com/react@18/umd/react.development.js"><\/script><script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script><script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script><style>body{margin:0;background:#f8fafc;font-family:system-ui,sans-serif}<\/style><\/head><body><div id="root"></div><script type="text/babel">${code} ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));<\/script><\/body><\/html>`;
+  return <iframe srcDoc={html} style={{width:'100%',height:'100%',border:'none'}} sandbox="allow-scripts" title="preview"/>;
+}
+
+// ── AUTH SCREEN ──────────────────────────────────────
+function AuthScreen({onAuth}){
+  const [mode,setMode]   = useState('login');
+  const [form,setForm]   = useState({name:'',email:'',phone:'',password:'',plan:'starter'});
+  const [step,setStep]   = useState(1);
+  const [otp,setOtp]     = useState(['','','','','','']);
+  const [err,setErr]     = useState('');
+  const [loading,setLoading] = useState(false);
+  const [otpSent,setOtpSent] = useState(false);
+  const [timer,setTimer] = useState(0);
+
+  useEffect(()=>{
+    if(timer>0){const t=setTimeout(()=>setTimer(timer-1),1000);return()=>clearTimeout(t);}
+  },[timer]);
+
+  const sendOTP = async () => {
+    if(!form.phone||form.phone.length!==10){setErr('Enter valid 10-digit mobile number');return;}
+    setLoading(true);
+    try{
+      await fetch(`https://control.msg91.com/api/v5/otp?template_id=${MSG91_TMPL}&mobile=91${form.phone}&authkey=${MSG91_AUTH}&otp_length=6&otp_expiry=10`);
+    }catch(e){}
+    setOtpSent(true); setTimer(30); setLoading(false); setErr('');
+  };
+
+  const login = () => {
+    const user = DB.users.find(u=>u.email===form.email&&u.password===form.password);
+    if(!user){setErr('Invalid email or password');return;}
+    onAuth(user);
+  };
+
+  const signup = async () => {
+    if(!form.name||!form.email||!form.phone||!form.password){setErr('All fields required');return;}
+    if(DB.users.find(u=>u.email===form.email)){setErr('Email already registered');return;}
+    const otpVal = otp.join('');
+    if(otpVal.length!==6){setErr('Enter 6-digit OTP');return;}
+    setLoading(true);
+    try{
+      await fetch(`https://control.msg91.com/api/v5/otp/verify?otp=${otpVal}&mobile=91${form.phone}&authkey=${MSG91_AUTH}`);
+    }catch(e){}
+    const plan = DB.plans.find(p=>p.id===form.plan);
+    const user = {id:genId(),name:form.name,email:form.email,phone:form.phone,password:form.password,role:'user',plan:form.plan,credits:plan.credits,joined:now(),apps:[]};
+    DB.users.push(user);
+    setLoading(false);
+    onAuth(user);
+  };
+
+  return (
+    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:16,background:'radial-gradient(ellipse at 20% 20%,#1a0900 0%,#080810 40%,#000308 100%)'}}>
+      <div style={{position:'fixed',inset:0,pointerEvents:'none',overflow:'hidden'}}>
+        <div style={{position:'absolute',top:'25%',left:'25%',width:400,height:400,borderRadius:'50%',background:'#f59e0b',opacity:.08,filter:'blur(60px)'}}/>
+        <div style={{position:'absolute',bottom:'25%',right:'25%',width:400,height:400,borderRadius:'50%',background:'#ef4444',opacity:.06,filter:'blur(60px)'}}/>
+      </div>
+      <div style={{position:'relative',width:'100%',maxWidth:420}}>
+        <div style={{textAlign:'center',marginBottom:28}}>
+          <Logo size="lg"/>
+          <p style={{color:'#6b6b8a',marginTop:8,fontSize:'.88rem'}}>AI-Powered App Builder Platform</p>
+        </div>
+        <div style={{background:'rgba(15,15,25,0.95)',border:'1px solid rgba(245,158,11,.2)',borderRadius:20,padding:28,backdropFilter:'blur(20px)'}}>
+          {/* Tabs */}
+          <div style={{display:'flex',borderRadius:12,overflow:'hidden',border:'1px solid #1e1e30',marginBottom:20}}>
+            {['login','signup'].map(m=>(
+              <button key={m} onClick={()=>{setMode(m);setStep(1);setErr('');}} style={{flex:1,padding:'10px',fontSize:'.85rem',fontWeight:600,textTransform:'capitalize',cursor:'pointer',border:'none',background:mode===m?'linear-gradient(135deg,#f59e0b,#ef4444)':'transparent',color:mode===m?'#000':'#9ca3af',fontFamily:"'DM Sans',sans-serif"}}>
+                {m==='login'?'Sign In':'Create Account'}
+              </button>
+            ))}
+          </div>
+
+          {mode==='login' && (
+            <div>
+              <div style={{marginBottom:12}}>
+                <label style={{fontSize:'.72rem',color:'#6b6b8a',fontWeight:600,textTransform:'uppercase',letterSpacing:1,display:'block',marginBottom:6}}>Email</label>
+                <input type="email" placeholder="you@example.com" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}
+                  style={{width:'100%',background:'#0f0f1a',border:'1px solid #1e1e30',borderRadius:10,padding:'12px 14px',color:'#fff',fontSize:'.9rem',boxSizing:'border-box'}}/>
+              </div>
+              <div style={{marginBottom:12}}>
+                <label style={{fontSize:'.72rem',color:'#6b6b8a',fontWeight:600,textTransform:'uppercase',letterSpacing:1,display:'block',marginBottom:6}}>Password</label>
+                <input type="password" placeholder="Your password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}
+                  onKeyDown={e=>e.key==='Enter'&&login()}
+                  style={{width:'100%',background:'#0f0f1a',border:'1px solid #1e1e30',borderRadius:10,padding:'12px 14px',color:'#fff',fontSize:'.9rem',boxSizing:'border-box'}}/>
+              </div>
+              {err&&<p style={{color:'#ef4444',fontSize:'.8rem',textAlign:'center',marginBottom:8}}>{err}</p>}
+              <button onClick={login} style={{width:'100%',padding:14,borderRadius:10,background:'linear-gradient(135deg,#f59e0b,#ef4444)',color:'#000',fontWeight:700,fontSize:'.95rem',border:'none',cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+                Sign In →
+              </button>
+              <p style={{textAlign:'center',marginTop:12,fontSize:'.8rem',color:'#6b6b8a'}}>
+                <span style={{color:'#f59e0b',cursor:'pointer'}} onClick={()=>{setMode('signup');setErr('');}}>Don't have an account? Sign Up</span>
+              </p>
+            </div>
+          )}
+
+          {mode==='signup' && step===1 && (
+            <div>
+              {[['Full Name','text','name','Your full name'],['Email','email','email','you@example.com'],['Mobile','tel','phone','10-digit number'],['Password','password','password','Min 8 characters']].map(([label,type,key,ph])=>(
+                <div key={key} style={{marginBottom:12}}>
+                  <label style={{fontSize:'.72rem',color:'#6b6b8a',fontWeight:600,textTransform:'uppercase',letterSpacing:1,display:'block',marginBottom:6}}>{label}</label>
+                  <input type={type} placeholder={ph} value={form[key]} onChange={e=>setForm({...form,[key]:e.target.value})} maxLength={key==='phone'?10:undefined}
+                    style={{width:'100%',background:'#0f0f1a',border:'1px solid #1e1e30',borderRadius:10,padding:'12px 14px',color:'#fff',fontSize:'.9rem',boxSizing:'border-box'}}/>
+                </div>
+              ))}
+              <div style={{marginBottom:16}}>
+                <label style={{fontSize:'.72rem',color:'#6b6b8a',fontWeight:600,textTransform:'uppercase',letterSpacing:1,display:'block',marginBottom:8}}>Choose Plan</label>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
+                  {DB.plans.map(p=>(
+                    <div key={p.id} onClick={()=>setForm({...form,plan:p.id})} style={{border:`1px solid ${form.plan===p.id?p.color:'#1e1e30'}`,borderRadius:10,padding:'10px 6px',textAlign:'center',cursor:'pointer',background:form.plan===p.id?p.color+'15':'transparent'}}>
+                      <div style={{fontSize:'.75rem',fontWeight:700,color:p.color}}>{p.name}</div>
+                      <div style={{fontSize:'.88rem',fontWeight:800,color:'#fff',marginTop:2}}>₹{fmt(p.price)}</div>
+                      <div style={{fontSize:'.68rem',color:'#6b6b8a'}}>/month</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {err&&<p style={{color:'#ef4444',fontSize:'.8rem',textAlign:'center',marginBottom:8}}>{err}</p>}
+              <button onClick={()=>{
+                if(!form.name||!form.email||!form.phone||!form.password){setErr('All fields required');return;}
+                if(form.phone.length!==10){setErr('Enter valid 10-digit mobile');return;}
+                if(form.password.length<8){setErr('Password min 8 characters');return;}
+                setErr(''); setStep(2);
+              }} style={{width:'100%',padding:14,borderRadius:10,background:'linear-gradient(135deg,#f59e0b,#ef4444)',color:'#000',fontWeight:700,fontSize:'.95rem',border:'none',cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+                Continue →
+              </button>
+            </div>
+          )}
+
+          {mode==='signup' && step===2 && (
+            <div>
+              <p style={{textAlign:'center',color:'#9ca3af',fontSize:'.88rem',marginBottom:16}}>Verify your mobile <strong style={{color:'#fff'}}>+91 {form.phone}</strong></p>
+              {!otpSent ? (
+                <button onClick={sendOTP} disabled={loading} style={{width:'100%',padding:14,borderRadius:10,background:'linear-gradient(135deg,#f59e0b,#ef4444)',color:'#000',fontWeight:700,fontSize:'.95rem',border:'none',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",opacity:loading?.6:1}}>
+                  {loading?'Sending...':'Send OTP →'}
+                </button>
+              ) : (
+                <div>
+                  <label style={{fontSize:'.72rem',color:'#6b6b8a',fontWeight:600,textTransform:'uppercase',letterSpacing:1,display:'block',marginBottom:10,textAlign:'center'}}>Enter 6-digit OTP</label>
+                  <div style={{display:'flex',gap:8,justifyContent:'center',marginBottom:16}}>
+                    {otp.map((d,i)=>(
+                      <input key={i} type="tel" maxLength={1} value={d}
+                        onChange={e=>{
+                          const v=e.target.value.replace(/[^0-9]/g,'');
+                          const newOtp=[...otp]; newOtp[i]=v; setOtp(newOtp);
+                          if(v&&i<5) document.querySelectorAll('.otp-input')[i+1]?.focus();
+                        }}
+                        className="otp-input"
+                        style={{width:44,height:52,textAlign:'center',fontSize:'1.3rem',fontWeight:700,background:'#0f0f1a',border:'1px solid #1e1e30',borderRadius:10,color:'#fff'}}/>
+                    ))}
+                  </div>
+                  <div style={{textAlign:'center',fontSize:'.8rem',color:'#6b6b8a',marginBottom:12}}>
+                    {timer>0 ? `Resend in ${timer}s` : <span style={{color:'#f59e0b',cursor:'pointer'}} onClick={sendOTP}>Resend OTP</span>}
+                  </div>
+                </div>
+              )}
+              {err&&<p style={{color:'#ef4444',fontSize:'.8rem',textAlign:'center',marginBottom:8}}>{err}</p>}
+              {otpSent && (
+                <button onClick={signup} disabled={loading} style={{width:'100%',padding:14,borderRadius:10,background:'linear-gradient(135deg,#f59e0b,#ef4444)',color:'#000',fontWeight:700,fontSize:'.95rem',border:'none',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",marginTop:4}}>
+                  {loading?'Creating...':'Create Account & Start Building →'}
+                </button>
+              )}
+              <button onClick={()=>setStep(1)} style={{width:'100%',padding:12,borderRadius:10,background:'transparent',border:'1px solid #1e1e30',color:'#9ca3af',fontSize:'.88rem',cursor:'pointer',marginTop:8,fontFamily:"'DM Sans',sans-serif"}}>
+                ← Back
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── BUILDER ──────────────────────────────────────────
+function Builder({user,onSave}){
+  const [prompt,setPrompt] = useState('');
+  const [loading,setLoading] = useState(false);
+  const [result,setResult]   = useState(null);
+  const [error,setError]     = useState(null);
+  const [tab,setTab]         = useState('preview');
+  const [saveMsg,setSaveMsg] = useState('');
+  const plan = DB.plans.find(p=>p.id===user.plan)||DB.plans[0];
+
+  const build = async (p) => {
+    const input = p||prompt;
+    if(!input.trim()) return;
+    if(user.credits<=0){setError('No credits left. Please upgrade your plan.');return;}
+    setLoading(true); setError(null); setResult(null);
+    try{
+      const res = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:1000,
+          system:SYSTEM_PROMPT,
+          messages:[{role:'user',content:`Build this app: ${input}`}]
+        })
+      });
+      const data = await res.json();
+      const text = data.content?.map(i=>i.text||'').join('')||'';
+      const clean = text.replace(/```json|```/g,'').trim();
+      const parsed = JSON.parse(clean);
+      setResult(parsed);
+      user.credits = Math.max(0,user.credits-1);
+      setTab('preview');
+    }catch(e){
+      setError('Build failed. Please try again.');
+    }finally{
+      setLoading(false);
+    }
+  };
+
+  const saveApp = () => {
+    if(!result) return;
+    if(user.apps.length>=plan.apps&&plan.apps!==999){setSaveMsg('App limit reached! Upgrade to save more.');return;}
+    const icons=['🚀','⚡','🎯','📱','🛠️','💡','🔮','🌟'];
+    user.apps.push({id:genId(),name:result.appName,description:result.description,code:result.code,features:result.features,icon:icons[Math.floor(Math.random()*icons.length)],savedAt:now()});
+    setSaveMsg('✓ App saved!'); setTimeout(()=>setSaveMsg(''),2000);
+    onSave();
+  };
+
+  const deployApp = () => {
+    if(!result) return;
+    const blob = new Blob([`<!DOCTYPE html><html><head><meta charset="UTF-8"/><script src="https://cdn.tailwindcss.com"><\/script><script src="https://unpkg.com/react@18/umd/react.development.js"><\/script><script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script><script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script><style>body{margin:0}<\/style><\/head><body><div id="root"></div><script type="text/babel">${result.code} ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));<\/script><\/body><\/html>`],{type:'text/html'});
+    const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:`${result.appName.replace(/\s+/g,'-').toLowerCase()}.html`});
+    a.click();
+  };
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',height:'100%'}}>
+      {/* Credits bar */}
+      <div style={{padding:'8px 16px',borderBottom:'1px solid #1e1e30',display:'flex',alignItems:'center',justifyContent:'space-between',fontSize:'.78rem'}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,color:'#9ca3af'}}>
+          <span>Credits: <strong style={{color:'#f59e0b'}}>{user.credits===999999?'∞':user.credits}</strong></span>
+          <span style={{background:`${DB.plans.find(p=>p.id===user.plan)?.color}20`,color:DB.plans.find(p=>p.id===user.plan)?.color,border:`1px solid ${DB.plans.find(p=>p.id===user.plan)?.color}40`,borderRadius:100,padding:'2px 8px',fontSize:'.7rem',fontWeight:700}}>
+            {user.plan.toUpperCase()}
+          </span>
+        </div>
+        <div style={{width:100,height:4,background:'#1e1e30',borderRadius:4,overflow:'hidden'}}>
+          <div style={{height:'100%',background:'linear-gradient(90deg,#f59e0b,#ef4444)',borderRadius:4,width:user.credits===999999?'100%':`${Math.min(100,(user.credits/plan.credits)*100)}%`}}/>
+        </div>
+      </div>
+
+      {/* Prompt bar */}
+      <div style={{padding:'12px 16px',borderBottom:'1px solid #1e1e30'}}>
+        <div style={{display:'flex',alignItems:'flex-start',gap:10,background:'#0f0f1a',border:'1px solid #1e1e30',borderRadius:12,padding:12}}>
+          <span style={{color:'#f59e0b',fontSize:'1.1rem',marginTop:2}}>✦</span>
+          <textarea value={prompt} onChange={e=>setPrompt(e.target.value)}
+            onKeyDown={e=>{if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))build();}}
+            placeholder="Describe the app you want to build in plain English…"
+            rows={2} style={{flex:1,background:'transparent',border:'none',color:'#fff',fontSize:'.9rem',resize:'none',fontFamily:"'DM Sans',sans-serif",lineHeight:1.6}}/>
+          <button onClick={()=>build()} disabled={loading||!prompt.trim()}
+            style={{background:'linear-gradient(135deg,#f59e0b,#ef4444)',color:'#000',fontWeight:700,fontSize:'.85rem',padding:'8px 16px',borderRadius:8,border:'none',cursor:'pointer',opacity:loading||!prompt.trim()?0.4:1,fontFamily:"'DM Sans',sans-serif",whiteSpace:'nowrap'}}>
+            {loading?'...':'Build →'}
+          </button>
+        </div>
+        <div style={{display:'flex',gap:8,marginTop:8,overflowX:'auto',paddingBottom:4}}>
+          {SAMPLES.map((s,i)=>(
+            <button key={i} onClick={()=>{setPrompt(s.prompt);build(s.prompt);}}
+              style={{background:'#0f0f1a',border:'1px solid #1e1e30',borderRadius:100,padding:'5px 12px',color:'#9ca3af',fontSize:'.75rem',cursor:'pointer',whiteSpace:'nowrap',fontFamily:"'DM Sans',sans-serif"}}>
+              {s.icon} {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Output */}
+      <div style={{flex:1,overflow:'hidden',display:'flex',flexDirection:'column'}}>
+        {!result&&!loading&&!error&&(
+          <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',textAlign:'center',padding:24,gap:16}}>
+            <div style={{width:64,height:64,borderRadius:16,background:'linear-gradient(135deg,#f59e0b20,#ef444420)',border:'1px solid #f59e0b30',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.8rem'}}>⚡</div>
+            <div>
+              <h2 style={{color:'#fff',fontSize:'1.2rem',fontFamily:"'Playfair Display',serif",marginBottom:8}}>Describe any app — we build it</h2>
+              <p style={{color:'#6b6b8a',fontSize:'.85rem'}}>CRMs, dashboards, portals, trackers — built by AI in seconds</p>
+            </div>
+          </div>
+        )}
+        {loading&&(
+          <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16}}>
+            <div style={{position:'relative',width:56,height:56}}>
+              <div style={{position:'absolute',inset:0,borderRadius:'50%',border:'4px solid #f59e0b20'}}/>
+              <div className="spin" style={{position:'absolute',inset:0,borderRadius:'50%',border:'4px solid transparent',borderTopColor:'#f59e0b'}}/>
+            </div>
+            <p style={{color:'#fff',fontWeight:600}}>Building your app…</p>
+            <p style={{color:'#6b6b8a',fontSize:'.82rem'}}>AI agents are designing & coding</p>
+          </div>
+        )}
+        {error&&(
+          <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,textAlign:'center',padding:24}}>
+            <p style={{color:'#ef4444'}}>{error}</p>
+            <button onClick={()=>build()} style={{color:'#f59e0b',background:'none',border:'none',cursor:'pointer',fontSize:'.9rem'}}>Try again</button>
+          </div>
+        )}
+        {result&&!loading&&(
+          <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+            {/* Result header */}
+            <div style={{padding:'8px 16px',borderBottom:'1px solid #1e1e30',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,background:'rgba(15,15,25,.5)'}}>
+              <div style={{display:'flex',alignItems:'center',gap:8,minWidth:0}}>
+                <div style={{width:18,height:18,borderRadius:4,background:'linear-gradient(135deg,#f59e0b,#ef4444)',flexShrink:0}}/>
+                <p style={{fontWeight:600,fontSize:'.88rem',color:'#fff',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{result.appName}</p>
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
+                {saveMsg&&<span style={{fontSize:'.75rem',color:'#22c55e',fontWeight:600}}>{saveMsg}</span>}
+                <button onClick={saveApp} style={{fontSize:'.75rem',padding:'5px 10px',borderRadius:8,border:'1px solid #f59e0b40',color:'#f59e0b',background:'#f59e0b10',cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>💾 Save</button>
+                <button onClick={deployApp} style={{fontSize:'.75rem',padding:'5px 10px',borderRadius:8,border:'1px solid #22c55e40',color:'#22c55e',background:'#22c55e10',cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>🚀 Export</button>
+                <div style={{display:'flex',borderRadius:8,overflow:'hidden',border:'1px solid #1e1e30'}}>
+                  {['preview','code','features'].map(t=>(
+                    <button key={t} onClick={()=>setTab(t)} style={{padding:'5px 10px',fontSize:'.75rem',textTransform:'capitalize',background:tab===t?'#f59e0b20':'transparent',color:tab===t?'#f59e0b':'#6b6b8a',border:'none',cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div style={{flex:1,overflow:'hidden'}}>
+              {tab==='preview'&&<div style={{height:'100%',padding:12}}><div style={{height:'100%',borderRadius:12,overflow:'hidden',border:'1px solid #1e1e30'}}><AppPreview code={result.code}/></div></div>}
+              {tab==='code'&&<div style={{height:'100%',overflow:'auto',padding:16}}><pre style={{fontSize:'.72rem',color:'#4ade80',fontFamily:'monospace',background:'#0a0a15',borderRadius:12,padding:16,border:'1px solid #1e1e30',overflowX:'auto',whiteSpace:'pre-wrap',lineHeight:1.6}}>{result.code}</pre></div>}
+              {tab==='features'&&<div style={{padding:20,overflow:'auto',height:'100%'}}><h3 style={{fontFamily:"'Playfair Display',serif",color:'#fff',marginBottom:16}}>✦ Built Features</h3>{result.features?.map((f,i)=><div key={i} style={{display:'flex',alignItems:'flex-start',gap:10,padding:12,background:'#0f0f1a',border:'1px solid #1e1e30',borderRadius:10,marginBottom:10}}><span style={{color:'#f59e0b'}}>✓</span><span style={{color:'#9ca3af',fontSize:'.88rem'}}>{f}</span></div>)}</div>}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── SAVED APPS ───────────────────────────────────────
+function SavedApps({user,onOpen}){
+  if(!user.apps.length) return (
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',textAlign:'center',padding:24,gap:12}}>
+      <div style={{fontSize:'3rem'}}>📂</div>
+      <h2 style={{color:'#fff',fontFamily:"'Playfair Display',serif"}}>No saved apps yet</h2>
+      <p style={{color:'#6b6b8a',fontSize:'.88rem'}}>Build an app and save it to see it here</p>
+    </div>
+  );
+  return (
+    <div style={{padding:24,maxWidth:900,margin:'0 auto'}}>
+      <h1 style={{color:'#fff',fontFamily:"'Playfair Display',serif",fontSize:'1.6rem',marginBottom:20}}>My Apps</h1>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:16}}>
+        {user.apps.map(app=>(
+          <div key={app.id} style={{background:'#0f0f1a',border:'1px solid #1e1e30',borderRadius:16,overflow:'hidden'}}>
+            <div style={{height:80,background:'linear-gradient(135deg,#1a1a2e,#0f0f1a)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem',borderBottom:'1px solid #1e1e30'}}>{app.icon}</div>
+            <div style={{padding:14}}>
+              <h3 style={{color:'#fff',fontSize:'.95rem',marginBottom:4,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{app.name}</h3>
+              <p style={{color:'#6b6b8a',fontSize:'.78rem',marginBottom:12,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{app.description}</p>
+              <div style={{display:'flex',gap:8}}>
+                <button onClick={()=>onOpen(app)} style={{flex:1,padding:'7px',borderRadius:8,border:'1px solid #f59e0b40',color:'#f59e0b',background:'#f59e0b10',cursor:'pointer',fontSize:'.78rem',fontWeight:600,fontFamily:"'DM Sans',sans-serif"}}>Open</button>
+                <button onClick={()=>{const idx=user.apps.findIndex(a=>a.id===app.id);user.apps.splice(idx,1);}} style={{padding:'7px 10px',borderRadius:8,border:'1px solid #ef444440',color:'#ef4444',background:'#ef444410',cursor:'pointer',fontSize:'.78rem',fontFamily:"'DM Sans',sans-serif"}}>Delete</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── PRICING ──────────────────────────────────────────
+function PricingPage({user,onUpgrade}){
+  const [sel,setSel]=useState(null);
+  const [success,setSuccess]=useState(false);
+
+  const upgrade = (plan) => {
+    setSel(plan.id);
+    // Open Razorpay
+    const options = {
+      key: RAZORPAY_KEY,
+      amount: plan.price * 100,
+      currency: 'INR',
+      name: 'PayPe Technologies',
+      description: `${plan.name} Plan — Monthly`,
+      theme: {color:'#f59e0b'},
+      handler: function(response){
+        user.plan = plan.id;
+        user.credits = plan.credits;
+        setSuccess(true);
+        setTimeout(()=>{setSuccess(false);setSel(null);onUpgrade({...user});},2000);
+      }
+    };
+    try{
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    }catch(e){
+      // Razorpay not loaded — simulate
+      user.plan = plan.id;
+      user.credits = plan.credits;
+      setSuccess(true);
+      setTimeout(()=>{setSuccess(false);setSel(null);onUpgrade({...user});},2000);
+    }
+    setSel(null);
+  };
+
+  return (
+    <div style={{maxWidth:960,margin:'0 auto',padding:24}}>
+      <div style={{textAlign:'center',marginBottom:32}}>
+        <h1 style={{color:'#fff',fontFamily:"'Playfair Display',serif",fontSize:'2rem',marginBottom:8}}>Simple Pricing</h1>
+        <p style={{color:'#6b6b8a'}}>All plans billed in ₹ INR · Cancel anytime</p>
+      </div>
+      {success&&<div style={{marginBottom:16,padding:14,borderRadius:12,border:'1px solid #22c55e40',background:'#22c55e10',color:'#22c55e',textAlign:'center',fontWeight:600}}>✓ Plan upgraded successfully!</div>}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:20}}>
+        {DB.plans.map(plan=>{
+          const isCurrent = user.plan===plan.id;
+          return (
+            <div key={plan.id} style={{background:'#0f0f1a',border:`1px solid ${isCurrent?plan.color:'#1e1e30'}`,borderRadius:20,padding:28,position:'relative',background:isCurrent?plan.color+'08':'#0f0f1a'}}>
+              {isCurrent&&<div style={{position:'absolute',top:12,right:12,fontSize:'.7rem',fontWeight:700,padding:'3px 10px',borderRadius:100,background:plan.color+'25',color:plan.color}}>CURRENT</div>}
+              <h3 style={{color:'#fff',fontFamily:"'Playfair Display',serif",fontSize:'1.2rem',marginBottom:4}}>{plan.name}</h3>
+              <div style={{fontFamily:"'Playfair Display',serif",fontSize:'2.2rem',fontWeight:900,color:plan.color,margin:'10px 0 4px'}}>
+                ₹{fmt(plan.price)}<span style={{fontSize:'.85rem',color:'#6b6b8a',fontFamily:"'DM Sans',sans-serif",fontWeight:400}}>/mo</span>
+              </div>
+              <ul style={{listStyle:'none',padding:0,margin:'16px 0 20px'}}>
+                {[`${plan.credits===999?'Unlimited':plan.credits} AI builds/mo`,`${plan.apps===999?'Unlimited':plan.apps} saved apps`,'Code export','GST invoice'].map((f,i)=>(
+                  <li key={i} style={{display:'flex',alignItems:'center',gap:8,fontSize:'.85rem',color:'#9ca3af',padding:'5px 0'}}>
+                    <span style={{color:plan.color}}>✓</span>{f}
+                  </li>
+                ))}
+              </ul>
+              <button onClick={()=>!isCurrent&&upgrade(plan)} disabled={isCurrent}
+                style={{width:'100%',padding:12,borderRadius:12,fontWeight:700,fontSize:'.9rem',cursor:isCurrent?'default':'pointer',border:'none',background:isCurrent?plan.color+'20':`linear-gradient(135deg,${plan.color},${plan.color}99)`,color:isCurrent?plan.color:'#000',fontFamily:"'DM Sans',sans-serif"}}>
+                {isCurrent?'Current Plan':`Upgrade to ${plan.name}`}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── SETTINGS ─────────────────────────────────────────
+function Settings({user,onLogout}){
+  const [copied,setCopied]=useState(false);
+  const plan = DB.plans.find(p=>p.id===user.plan)||DB.plans[0];
+  return (
+    <div style={{maxWidth:600,margin:'0 auto',padding:24}}>
+      <h1 style={{color:'#fff',fontFamily:"'Playfair Display',serif",fontSize:'1.8rem',marginBottom:20}}>Account Settings</h1>
+      <div style={{background:'#0f0f1a',border:'1px solid #1e1e30',borderRadius:16,padding:20,marginBottom:16}}>
+        <h2 style={{color:'#fff',fontSize:'1rem',marginBottom:14}}>Profile</h2>
+        {[['Name',user.name],['Email',user.email],['Phone',user.phone||'Not set'],['Member Since',user.joined]].map(([k,v])=>(
+          <div key={k} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 0',borderBottom:'1px solid #1e1e30'}}>
+            <span style={{color:'#6b6b8a',fontSize:'.88rem'}}>{k}</span>
+            <span style={{color:'#fff',fontSize:'.88rem',fontWeight:500}}>{v}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{background:'#0f0f1a',border:`1px solid ${plan.color}40`,borderRadius:16,padding:20,marginBottom:16}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+          <h2 style={{color:'#fff',fontSize:'1rem'}}>Current Plan</h2>
+          <span style={{background:plan.color+'20',color:plan.color,border:`1px solid ${plan.color}40`,borderRadius:100,padding:'3px 10px',fontSize:'.75rem',fontWeight:700}}>{plan.name.toUpperCase()}</span>
+        </div>
+        <p style={{color:'#6b6b8a',fontSize:'.85rem'}}>Credits: <strong style={{color:plan.color}}>{user.credits===999999?'Unlimited':user.credits} / {plan.credits===999?'Unlimited':plan.credits}</strong></p>
+        <p style={{color:'#6b6b8a',fontSize:'.85rem',marginTop:4}}>Apps: <strong style={{color:plan.color}}>{user.apps.length} / {plan.apps===999?'Unlimited':plan.apps}</strong></p>
+      </div>
+      <button onClick={onLogout} style={{width:'100%',padding:14,borderRadius:12,border:'1px solid #ef444430',color:'#ef4444',background:'#ef444408',cursor:'pointer',fontWeight:600,fontSize:'.9rem',fontFamily:"'DM Sans',sans-serif"}}>
+        Sign Out
+      </button>
+    </div>
+  );
+}
+
+// ── ROOT APP ─────────────────────────────────────────
+function App(){
+  const [user,setUser]   = useState(null);
+  const [page,setPage]   = useState('builder');
+  const [,forceUpdate]   = useState(0);
+
+  const nav = [
+    {id:'builder', label:'⚡ Build'},
+    {id:'apps',    label:'📂 My Apps'},
+    {id:'pricing', label:'💳 Pricing'},
+    {id:'settings',label:'⚙ Settings'},
+  ];
+
+  if(!user) return <AuthScreen onAuth={u=>{setUser(u);setPage('builder');}}/>;
+
+  return (
+    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',background:'#08080f',fontFamily:"'DM Sans',sans-serif"}}>
+      {/* Header */}
+      <header style={{position:'sticky',top:0,zIndex:50,display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 16px',height:60,background:'rgba(8,8,15,.94)',backdropFilter:'blur(16px)',borderBottom:'1px solid #1e1e30'}}>
+        <Logo/>
+        <nav style={{display:'flex',alignItems:'center',gap:4}}>
+          {nav.map(n=>(
+            <button key={n.id} onClick={()=>setPage(n.id)}
+              style={{padding:'7px 12px',borderRadius:8,fontSize:'.82rem',fontWeight:500,cursor:'pointer',border:'none',background:page===n.id?'#f59e0b15':'transparent',color:page===n.id?'#f59e0b':'#6b6b8a',fontFamily:"'DM Sans',sans-serif"}}>
+              {n.label}
+            </button>
+          ))}
+        </nav>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <span style={{fontSize:'.78rem',color:'#6b6b8a',display:'none'}}>{user.name}</span>
+          <div style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,#f59e0b,#ef4444)',display:'flex',alignItems:'center',justifyContent:'center',color:'#000',fontWeight:700,fontSize:'.9rem'}}>
+            {user.name[0]}
+          </div>
+        </div>
+      </header>
+
+      {/* Content */}
+      <main style={{flex:1,overflow:'auto',height:'calc(100vh - 60px)'}}>
+        {page==='builder' && <div style={{height:'100%'}}><Builder user={user} onSave={()=>forceUpdate(x=>x+1)}/></div>}
+        {page==='apps'    && <SavedApps user={user} onOpen={()=>setPage('builder')}/>}
+        {page==='pricing' && <PricingPage user={user} onUpgrade={u=>{setUser({...u});forceUpdate(x=>x+1);}}/>}
+        {page==='settings'&& <Settings user={user} onLogout={()=>setUser(null)}/>}
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</body>
+</html>
