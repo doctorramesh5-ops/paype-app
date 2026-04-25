@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PayPe AI Builder – app.paype.co.in</title>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#08080f;color:#e2e2f0;font-family:'DM Sans',sans-serif;min-height:100vh}
+input,button,textarea{font-family:'DM Sans',sans-serif}
+input:focus,textarea:focus{outline:none}
+button{cursor:pointer}
+
+/* AUTH */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;background:radial-gradient(ellipse at 30% 20%,#1a0900,#080810 50%,#000308)}
+.auth-box{width:100%;max-width:420px;background:rgba(15,15,25,.97);border:1px solid rgba(245,158,11,.25);border-radius:20px;padding:32px;box-shadow:0 24px 80px rgba(0,0,0,.6)}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-weight:900;font-size:1.4rem;justify-content:center;margin-bottom:6px}
+.logo-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:1rem}
+.auth-sub{text-align:center;color:#6b6b8a;font-size:.85rem;margin-bottom:24px}
+.auth-tabs{display:flex;border-radius:10px;overflow:hidden;border:1px solid #1e1e30;margin-bottom:20px}
+.auth-tab{flex:1;padding:10px;font-size:.85rem;font-weight:600;border:none;background:transparent;color:#9ca3af;transition:all .2s}
+.auth-tab.active{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.72rem;color:#6b6b8a;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.field input{width:100%;background:#0a0a15;border:1px solid #1e1e30;border-radius:10px;padding:12px 14px;color:#fff;font-size:.92rem;transition:border .2s}
+.field input:focus{border-color:rgba(245,158,11,.5)}
+.btn-gold{width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000;font-weight:700;font-size:.95rem;border:none;transition:opacity .2s;margin-top:4px}
+.btn-gold:hover{opacity:.88}
+.btn-ghost{width:100%;padding:11px;border-radius:10px;background:transparent;border:1px solid #1e1e30;color:#9ca3af;font-size:.85rem;margin-top:8px;transition:all .2s}
+.btn-ghost:hover{border-color:#f59e0b;color:#f59e0b}
+.err{color:#ef4444;font-size:.8rem;text-align:center;margin:8px 0;min-height:18px}
+.plan-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.plan-opt{border:1px solid #1e1e30;border-radius:9px;padding:10px 6px;text-align:center;transition:all .2s}
+.plan-opt.sel{border-color:#f59e0b;background:rgba(245,158,11,.08)}
+.plan-name{font-size:.72rem;font-weight:700;color:#f59e0b}
+.plan-price{font-size:.88rem;font-weight:800;color:#fff;margin-top:2px}
+
+/* APP SHELL */
+.shell{display:flex;flex-direction:column;height:100vh}
+header{height:58px;background:rgba(8,8,15,.95);border-bottom:1px solid #1e1e30;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:100;flex-shrink:0}
+.h-logo{display:flex;align-items:center;gap:8px;font-family:'Playfair Display',serif;font-weight:900;font-size:1rem}
+.h-logo-icon{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:.85rem}
+nav{display:flex;gap:2px}
+.nav-btn{padding:6px 11px;border-radius:7px;font-size:.78rem;font-weight:500;border:none;background:transparent;color:#6b6b8a;transition:all .2s}
+.nav-btn.active,.nav-btn:hover{background:#f59e0b15;color:#f59e0b}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#000;font-weight:700;font-size:.85rem}
+main{flex:1;overflow:auto}
+
+/* BUILDER */
+.builder{display:flex;flex-direction:column;height:100%}
+.credits-bar{padding:6px 16px;border-bottom:1px solid #1e1e30;display:flex;align-items:center;justify-content:space-between;font-size:.75rem;color:#9ca3af;flex-shrink:0}
+.credit-pill{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:#f59e0b;padding:2px 10px;border-radius:100px;font-size:.72rem;font-weight:700}
+.prompt-area{padding:12px 16px;border-bottom:1px solid #1e1e30;flex-shrink:0}
+.prompt-box{display:flex;align-items:flex-start;gap:10px;background:#0f0f1a;border:1px solid #1e1e30;border-radius:12px;padding:12px;transition:border .2s}
+.prompt-box:focus-within{border-color:rgba(245,158,11,.4)}
+.prompt-icon{color:#f59e0b;font-size:1.1rem;margin-top:2px;flex-shrink:0}
+.prompt-input{flex:1;background:transparent;border:none;color:#fff;font-size:.9rem;resize:none;line-height:1.6;min-height:44px}
+.build-btn{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000;font-weight:700;font-size:.85rem;padding:9px 16px;border-radius:9px;border:none;white-space:nowrap;flex-shrink:0;transition:opacity .2s}
+.build-btn:disabled{opacity:.4}
+.chips{display:flex;gap:7px;margin-top:9px;overflow-x:auto;padding-bottom:2px}
+.chip{background:#0f0f1a;border:1px solid #1e1e30;border-radius:100px;padding:5px 12px;color:#9ca3af;font-size:.75rem;white-space:nowrap;transition:all .2s}
+.chip:hover{border-color:#f59e0b;color:#f59e0b}
+.output{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:14px}
+.empty-icon{width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(239,68,68,.1));border:1px solid rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;font-size:1.6rem}
+.loading-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.spinner{width:50px;height:50px;position:relative}
+.spinner::before{content:'';position:absolute;inset:0;border-radius:50%;border:4px solid rgba(245,158,11,.15)}
+.spinner::after{content:'';position:absolute;inset:0;border-radius:50%;border:4px solid transparent;border-top-color:#f59e0b;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.result-header{padding:8px 16px;border-bottom:1px solid #1e1e30;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(15,15,25,.5);flex-shrink:0}
+.result-title{display:flex;align-items:center;gap:8px;min-width:0}
+.result-dot{width:14px;height:14px;border-radius:4px;background:linear-gradient(135deg,#f59e0b,#ef4444);flex-shrink:0}
+.result-name{font-weight:600;font-size:.88rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.result-actions{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.act-btn{padding:5px 10px;border-radius:7px;font-size:.72rem;font-weight:600;border:1px solid;transition:all .2s}
+.tab-group{display:flex;border-radius:7px;overflow:hidden;border:1px solid #1e1e30}
+.tab-btn{padding:5px 10px;font-size:.72rem;border:none;background:transparent;color:#6b6b8a;transition:all .2s}
+.tab-btn.active{background:#f59e0b20;color:#f59e0b}
+.preview-wrap{height:100%;padding:10px}
+.preview-frame{height:100%;border-radius:10px;overflow:hidden;border:1px solid #1e1e30}
+.code-wrap{height:100%;overflow:auto;padding:14px}
+.code-block{font-size:.72rem;color:#4ade80;font-family:monospace;background:#0a0a15;border-radius:10px;padding:14px;border:1px solid #1e1e30;overflow-x:auto;white-space:pre-wrap;line-height:1.6}
+.feat-wrap{padding:20px;overflow:auto;height:100%}
+.feat-item{display:flex;gap:10px;padding:11px;background:#0f0f1a;border:1px solid #1e1e30;border-radius:9px;margin-bottom:9px}
+
+/* PRICING MODAL */
+.modal-bg{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:#0f0f1a;border:1px solid rgba(245,158,11,.3);border-radius:20px;padding:28px;max-width:360px;width:100%;text-align:center}
+
+/* PRICING PAGE */
+.pricing-page{max-width:960px;margin:0 auto;padding:24px}
+.plan-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.plan-card{background:#0f0f1a;border:1px solid #1e1e30;border-radius:18px;padding:26px;position:relative;transition:transform .2s}
+.plan-card:hover{transform:translateY(-2px)}
+.plan-card.current{border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.05)}
+
+/* APPS */
+.apps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:20px}
+.app-card{background:#0f0f1a;border:1px solid #1e1e30;border-radius:14px;overflow:hidden}
+.app-thumb{height:72px;background:linear-gradient(135deg,#1a1a2e,#0f0a1a);display:flex;align-items:center;justify-content:center;font-size:1.8rem;border-bottom:1px solid #1e1e30}
+
+/* SETTINGS */
+.settings-page{max-width:580px;margin:0 auto;padding:24px}
+.settings-card{background:#0f0f1a;border:1px solid #1e1e30;border-radius:14px;padding:20px;margin-bottom:14px}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #1e1e30}
+.setting-row:last-child{border-bottom:none}
+
+/* SUCCESS TOAST */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);z-index:999;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000;font-weight:700;font-size:.85rem;padding:11px 22px;border-radius:100px;transition:transform .35s;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<div id="root"></div>
+
+<script>
+// ═══════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════
+const RAZORPAY_KEY = 'rzp_live_SfvAyAFnsUhRKX';
+
+const PLANS = [
+  {id:'starter',    name:'Starter',    price:749,  credits:20,  apps:5,   color:'#22d3ee'},
+  {id:'pro',        name:'Pro',        price:2499, credits:80,  apps:25,  color:'#a78bfa'},
+  {id:'enterprise', name:'Enterprise', price:8499, credits:999, apps:999, color:'#f59e0b'},
+];
+
+const SAMPLES = [
+  {icon:'📊',label:'CRM',p:'A CRM with contacts, pipeline and revenue stats'},
+  {icon:'📦',label:'Inventory',p:'Inventory system with products and stock levels'},
+  {icon:'🗂️',label:'Kanban',p:'Kanban board with tasks and columns'},
+  {icon:'👥',label:'HR Portal',p:'HR portal with employee directory and leaves'},
+  {icon:'💰',label:'Finance',p:'Finance dashboard with income and expenses'},
+  {icon:'📋',label:'Tasks',p:'Task manager with priorities and due dates'},
+];
+
+const SYSTEM_PROMPT = `You are an expert developer. Generate a React app.
+Return ONLY valid JSON (no markdown):
+{"appName":"string","description":"string","code":"string","features":["string"]}
+code must be self-contained React + Tailwind CSS.
+export default function App() { ... }
+Make it production-quality and beautiful.`;
+
+function genId(){ return Math.random().toString(36).slice(2,10); }
+function fmtN(n){ return Number(n).toLocaleString('en-IN'); }
+function nowStr(){ return new Date().toLocaleDateString('en-IN',{month:'short',day:'numeric',year:'numeric'}); }
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════
+// USER STORAGE
+// ═══════════════════════════════════════
+function getUsers(){
+  try{
+    const d = localStorage.getItem('pp_users');
+    const users = d ? JSON.parse(d) : [];
+    if(!users.find(u=>u.email==='admin@paype.co.in')){
+      users.unshift({id:'admin-1',name:'Admin',email:'admin@paype.co.in',password:'admin@2025',role:'admin',plan:'enterprise',credits:999999,joined:'Apr 2025',apps:[]});
+      localStorage.setItem('pp_users', JSON.stringify(users));
+    }
+    return users;
+  }catch(e){ return []; }
+}
+
+function saveUsers(users){
+  try{ localStorage.setItem('pp_users', JSON.stringify(users)); }catch(e){}
+}
+
+function getSession(){
+  try{ return JSON.parse(localStorage.getItem('pp_session')||'null'); }catch(e){ return null; }
+}
+
+function saveSession(user){
+  try{ localStorage.setItem('pp_session', JSON.stringify(user)); }catch(e){}
+}
+
+function clearSession(){
+  try{ localStorage.removeItem('pp_session'); }catch(e){}
+}
+
+// ═══════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════
+let STATE = {
+  user: getSession(),
+  page: 'builder',
+  prompt: '',
+  loading: false,
+  result: null,
+  error: null,
+  tab: 'preview',
+  authMode: 'login',
+  authStep: 1,
+  authForm: {name:'',email:'',phone:'',password:'',plan:'starter'},
+  authErr: '',
+  authLoading: false,
+  payModal: null,
+  pricingSuccess: false,
+};
+
+function setState(updates){
+  STATE = {...STATE, ...updates};
+  render();
+}
+
+// ═══════════════════════════════════════
+// AUTH FUNCTIONS
+// ═══════════════════════════════════════
+function doLogin(){
+  const {email, password} = STATE.authForm;
+  if(!email || !password){ setState({authErr:'Enter email and password'}); return; }
+  const users = getUsers();
+  const user = users.find(u => u.email.toLowerCase()===email.toLowerCase() && u.password===password);
+  if(!user){ setState({authErr:'Wrong email or password. Please try again.'}); return; }
+  saveSession(user);
+  setState({user, page:'builder', authErr:''});
+  showToast('Welcome back, ' + user.name + '! 👋');
+}
+
+function doSignup(){
+  const f = STATE.authForm;
+  if(!f.name||!f.email||!f.password){ setState({authErr:'Name, email and password required'}); return; }
+  if(f.password.length < 6){ setState({authErr:'Password must be at least 6 characters'}); return; }
+  const users = getUsers();
+  if(users.find(u=>u.email.toLowerCase()===f.email.toLowerCase())){ setState({authErr:'Email already registered. Please sign in.'}); return; }
+  const plan = PLANS.find(p=>p.id===f.plan)||PLANS[0];
+  const newUser = {
+    id: genId(),
+    name: f.name,
+    email: f.email,
+    phone: f.phone||'',
+    password: f.password,
+    role: 'user',
+    plan: f.plan,
+    credits: plan.credits,
+    joined: nowStr(),
+    apps: []
+  };
+  users.push(newUser);
+  saveUsers(users);
+  saveSession(newUser);
+  setState({user:newUser, page:'builder', authErr:''});
+  showToast('Account created! Welcome to PayPe 🎉');
+}
+
+function doLogout(){
+  clearSession();
+  setState({user:null, page:'builder', result:null, prompt:''});
+}
+
+// ═══════════════════════════════════════
+// BUILD FUNCTION
+// ═══════════════════════════════════════
+async function buildApp(promptText){
+  const p = promptText || STATE.prompt;
+  if(!p.trim()) return;
+  if(!STATE.user){ setState({authErr:'Please sign in first'}); return; }
+  if(STATE.user.credits <= 0){ showToast('No credits! Please upgrade your plan.'); setState({page:'pricing'}); return; }
+
+  setState({loading:true, error:null, result:null});
+
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:SYSTEM_PROMPT,
+        messages:[{role:'user',content:`Build: ${p}`}]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content||[]).map(i=>i.text||'').join('');
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+
+    // Deduct credit
+    const users = getUsers();
+    const idx = users.findIndex(u=>u.id===STATE.user.id);
+    if(idx>=0){
+      users[idx].credits = Math.max(0, users[idx].credits - 1);
+      saveUsers(users);
+      saveSession(users[idx]);
+      setState({loading:false, result:parsed, tab:'preview', user:users[idx]});
+    } else {
+      setState({loading:false, result:parsed, tab:'preview'});
+    }
+    showToast('App built successfully! ⚡');
+  }catch(e){
+    setState({loading:false, error:'Build failed. Please try again.'});
+  }
+}
+
+function saveApp(){
+  if(!STATE.result || !STATE.user) return;
+  const plan = PLANS.find(p=>p.id===STATE.user.plan)||PLANS[0];
+  if(STATE.user.apps.length >= plan.apps && plan.apps!==999){
+    showToast('App limit reached! Upgrade to save more.'); return;
+  }
+  const icons = ['🚀','⚡','🎯','📱','🛠️','💡','🔮','🌟','💎','🔥'];
+  const app = {
+    id:genId(),
+    name:STATE.result.appName,
+    description:STATE.result.description,
+    code:STATE.result.code,
+    features:STATE.result.features,
+    icon:icons[Math.floor(Math.random()*icons.length)],
+    savedAt:nowStr()
+  };
+  const users = getUsers();
+  const idx = users.findIndex(u=>u.id===STATE.user.id);
+  if(idx>=0){
+    users[idx].apps = [...(users[idx].apps||[]), app];
+    saveUsers(users);
+    saveSession(users[idx]);
+    setState({user:users[idx]});
+  }
+  showToast('App saved! 💾');
+}
+
+function exportApp(){
+  if(!STATE.result) return;
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><script src="https://cdn.tailwindcss.com"><\/script><script src="https://unpkg.com/react@18/umd/react.development.js"><\/script><script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script><script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script><style>body{margin:0}<\/style><\/head><body><div id="root"></div><script type="text/babel">${STATE.result.code} ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));<\/script><\/body><\/html>`;
+  const a = Object.assign(document.createElement('a'),{
+    href: URL.createObjectURL(new Blob([html],{type:'text/html'})),
+    download: STATE.result.appName.replace(/\s+/g,'-').toLowerCase()+'.html'
+  });
+  a.click();
+  showToast('App exported! 🚀');
+}
+
+// ═══════════════════════════════════════
+// PAYMENT
+// ═══════════════════════════════════════
+function openPayment(plan){
+  setState({payModal:plan});
+}
+
+function processPayment(plan){
+  setState({payModal:null});
+
+  if(!window.Razorpay){
+    const s = document.createElement('script');
+    s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    s.onload = () => launchRazorpay(plan);
+    s.onerror = () => showToast('Payment not available. Check internet.');
+    document.head.appendChild(s);
+    return;
+  }
+  launchRazorpay(plan);
+}
+
+function launchRazorpay(plan){
+  const user = STATE.user;
+  const options = {
+    key: RAZORPAY_KEY,
+    amount: plan.price * 100,
+    currency: 'INR',
+    name: 'PayPe Technologies',
+    description: plan.name + ' Plan',
+    prefill: { name:user.name, email:user.email, contact:user.phone||'' },
+    theme: { color:'#f59e0b' },
+    handler: function(response){
+      // Update user plan
+      const users = getUsers();
+      const idx = users.findIndex(u=>u.id===user.id);
+      if(idx>=0){
+        users[idx].plan = plan.id;
+        users[idx].credits = (users[idx].credits||0) + plan.credits;
+        saveUsers(users);
+        saveSession(users[idx]);
+        setState({user:users[idx], pricingSuccess:true});
+        setTimeout(()=>setState({pricingSuccess:false}),3000);
+      }
+      showToast('Payment successful! Credits added 🎉');
+    },
+    modal:{ ondismiss: function(){ showToast('Payment cancelled.'); } }
+  };
+  try{
+    new window.Razorpay(options).open();
+  }catch(e){
+    showToast('Payment error. Please refresh and try again.');
+  }
+}
+
+// ═══════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════
+function render(){
+  const root = document.getElementById('root');
+  if(!root) return;
+
+  if(!STATE.user){
+    root.innerHTML = renderAuth();
+    attachAuthEvents();
+    return;
+  }
+
+  root.innerHTML = renderApp();
+  attachAppEvents();
+}
+
+// ── AUTH HTML ────────────────────────────────────────
+function renderAuth(){
+  const f = STATE.authForm;
+  const isLogin = STATE.authMode === 'login';
+
+  return `
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <div class="logo">
+        <div class="logo-icon">P</div>
+        <span style="color:#fff">PayPe</span>
+        <span style="color:#f59e0b">Technologies</span>
+      </div>
+      <p class="auth-sub">AI-Powered App Builder Platform</p>
+
+      <div class="auth-tabs">
+        <button class="auth-tab ${isLogin?'active':''}" onclick="switchAuthMode('login')">Sign In</button>
+        <button class="auth-tab ${!isLogin?'active':''}" onclick="switchAuthMode('signup')">Create Account</button>
+      </div>
+
+      ${isLogin ? `
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" id="f-email" placeholder="you@example.com" value="${f.email}" oninput="updateForm('email',this.value)"/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="f-pass" placeholder="Your password" value="${f.password}" oninput="updateForm('password',this.value)" onkeydown="if(event.key==='Enter')doLogin()"/>
+        </div>
+        <div class="err">${STATE.authErr}</div>
+        <button class="btn-gold" onclick="doLogin()">Sign In →</button>
+        <p style="text-align:center;margin-top:12px;font-size:.8rem;color:#6b6b8a">
+          No account? <span style="color:#f59e0b;cursor:pointer" onclick="switchAuthMode('signup')">Create one free</span>
+        </p>
+        <p style="text-align:center;margin-top:6px;font-size:.72rem;color:#444">
+          Demo: admin@paype.co.in / admin@2025
+        </p>
+      ` : STATE.authStep===1 ? `
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" placeholder="Your name" value="${f.name}" oninput="updateForm('name',this.value)"/>
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" placeholder="you@example.com" value="${f.email}" oninput="updateForm('email',this.value)"/>
+        </div>
+        <div class="field">
+          <label>Mobile (optional)</label>
+          <input type="tel" placeholder="10-digit number" value="${f.phone}" maxlength="10" oninput="updateForm('phone',this.value)"/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" placeholder="Min 6 characters" value="${f.password}" oninput="updateForm('password',this.value)"/>
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:.72rem;color:#6b6b8a;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Choose Plan</label>
+          <div class="plan-grid">
+            ${PLANS.map(p=>`
+              <div class="plan-opt ${f.plan===p.id?'sel':''}" onclick="updateForm('plan','${p.id}')">
+                <div class="plan-name">${p.name}</div>
+                <div class="plan-price">₹${fmtN(p.price)}</div>
+                <div style="font-size:.65rem;color:#6b6b8a">/mo</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="err">${STATE.authErr}</div>
+        <button class="btn-gold" onclick="doSignup()">Create Account & Start Building →</button>
+        <p style="text-align:center;margin-top:10px;font-size:.8rem;color:#6b6b8a">
+          Have account? <span style="color:#f59e0b;cursor:pointer" onclick="switchAuthMode('login')">Sign in</span>
+        </p>
+      ` : ''}
+    </div>
+  </div>`;
+}
+
+// ── APP HTML ─────────────────────────────────────────
+function renderApp(){
+  const u = STATE.user;
+  const plan = PLANS.find(p=>p.id===u.plan)||PLANS[0];
+
+  return `
+  ${STATE.payModal ? renderPayModal() : ''}
+  <div class="shell">
+    <header>
+      <div class="h-logo">
+        <div class="h-logo-icon">P</div>
+        <span style="color:#fff;font-family:'Playfair Display',serif">PayPe</span>
+        <span style="color:#f59e0b;font-family:'Playfair Display',serif"> Tech</span>
+      </div>
+      <nav>
+        <button class="nav-btn ${STATE.page==='builder'?'active':''}" onclick="gotoPage('builder')">⚡ Build</button>
+        <button class="nav-btn ${STATE.page==='apps'?'active':''}" onclick="gotoPage('apps')">📂 Apps</button>
+        <button class="nav-btn ${STATE.page==='pricing'?'active':''}" onclick="gotoPage('pricing')">💳 Pricing</button>
+        <button class="nav-btn ${STATE.page==='settings'?'active':''}" onclick="gotoPage('settings')">⚙</button>
+      </nav>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:.75rem;color:#9ca3af;display:none" id="uname">${u.name}</span>
+        <div class="avatar">${u.name[0]}</div>
+      </div>
+    </header>
+    <main>
+      ${STATE.page==='builder' ? renderBuilder() : ''}
+      ${STATE.page==='apps'    ? renderApps()    : ''}
+      ${STATE.page==='pricing' ? renderPricing() : ''}
+      ${STATE.page==='settings'? renderSettings(): ''}
+    </main>
+  </div>`;
+}
+
+function renderPayModal(){
+  const p = STATE.payModal;
+  return `
+  <div class="modal-bg" onclick="if(event.target===this)setState({payModal:null})">
+    <div class="modal-box">
+      <div style="font-size:2.5rem;margin-bottom:12px">💳</div>
+      <h2 style="color:#fff;font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:6px">${p.name} Plan</h2>
+      <p style="color:${p.color};font-size:2rem;font-weight:900;font-family:'Playfair Display',serif;margin-bottom:4px">₹${fmtN(p.price)}<span style="font-size:1rem;color:#6b6b8a;font-weight:400">/mo</span></p>
+      <p style="color:#6b6b8a;font-size:.82rem;margin-bottom:20px">${p.credits===999?'Unlimited':p.credits} builds · ${p.apps===999?'Unlimited':p.apps} apps</p>
+      <button class="btn-gold" onclick="processPayment(${JSON.stringify(p).replace(/"/g,'&quot;')})">Pay ₹${fmtN(p.price)} →</button>
+      <button class="btn-ghost" onclick="setState({payModal:null})">Cancel</button>
+      <p style="color:#6b6b8a;font-size:.7rem;margin-top:12px">🔒 Razorpay · UPI · Cards · Net Banking</p>
+    </div>
+  </div>`;
+}
+
+function renderBuilder(){
+  const u = STATE.user;
+  const plan = PLANS.find(p=>p.id===u.plan)||PLANS[0];
+  const credPct = u.credits===999999?100:Math.min(100,(u.credits/plan.credits)*100);
+
+  return `
+  <div class="builder" style="height:calc(100vh - 58px)">
+    <div class="credits-bar">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span>Credits: <strong style="color:#f59e0b">${u.credits===999999?'∞':u.credits}</strong></span>
+        <span class="credit-pill">${plan.name.toUpperCase()}</span>
+      </div>
+      <div style="width:90px;height:4px;background:#1e1e30;border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${credPct}%;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:4px"></div>
+      </div>
+    </div>
+    <div class="prompt-area">
+      <div class="prompt-box">
+        <span class="prompt-icon">✦</span>
+        <textarea class="prompt-input" id="prompt-input" rows="2" placeholder="Describe the app you want to build in plain English…">${STATE.prompt}</textarea>
+        <button class="build-btn" id="build-btn" ${STATE.loading||!STATE.prompt.trim()?'disabled':''} onclick="buildApp()">
+          ${STATE.loading?'…':'Build →'}
+        </button>
+      </div>
+      <div class="chips">
+        ${SAMPLES.map(s=>`<button class="chip" onclick="buildApp('${s.p}')">${s.icon} ${s.label}</button>`).join('')}
+      </div>
+    </div>
+    <div class="output">
+      ${!STATE.result&&!STATE.loading&&!STATE.error?`
+        <div class="empty-state">
+          <div class="empty-icon">⚡</div>
+          <div>
+            <h2 style="color:#fff;font-size:1.1rem;font-family:'Playfair Display',serif;margin-bottom:6px">Describe any app — we build it</h2>
+            <p style="color:#6b6b8a;font-size:.85rem">CRMs, dashboards, portals, trackers — built by AI in seconds</p>
+          </div>
+        </div>` : ''}
+      ${STATE.loading?`
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p style="color:#fff;font-weight:600">Building your app…</p>
+          <p style="color:#6b6b8a;font-size:.82rem">AI agents are designing & coding</p>
+        </div>` : ''}
+      ${STATE.error?`
+        <div class="empty-state">
+          <p style="color:#ef4444">${STATE.error}</p>
+          <button class="btn-ghost" style="width:auto;padding:8px 20px" onclick="buildApp()">Try Again</button>
+        </div>` : ''}
+      ${STATE.result&&!STATE.loading?`
+        <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+          <div class="result-header">
+            <div class="result-title">
+              <div class="result-dot"></div>
+              <span class="result-name">${STATE.result.appName}</span>
+            </div>
+            <div class="result-actions">
+              <button class="act-btn" style="border-color:#f59e0b40;color:#f59e0b;background:#f59e0b10" onclick="saveApp()">💾 Save</button>
+              <button class="act-btn" style="border-color:#22c55e40;color:#22c55e;background:#22c55e10" onclick="exportApp()">🚀 Export</button>
+              <div class="tab-group">
+                <button class="tab-btn ${STATE.tab==='preview'?'active':''}" onclick="setState({tab:'preview'})">Preview</button>
+                <button class="tab-btn ${STATE.tab==='code'?'active':''}" onclick="setState({tab:'code'})">Code</button>
+                <button class="tab-btn ${STATE.tab==='features'?'active':''}" onclick="setState({tab:'features'})">Features</button>
+              </div>
+            </div>
+          </div>
+          <div style="flex:1;overflow:hidden">
+            ${STATE.tab==='preview'?`
+              <div class="preview-wrap" style="height:100%">
+                <div class="preview-frame">
+                  <iframe srcdoc="${encodePreview(STATE.result.code)}" style="width:100%;height:100%;border:none" sandbox="allow-scripts"></iframe>
+                </div>
+              </div>` : ''}
+            ${STATE.tab==='code'?`
+              <div class="code-wrap">
+                <pre class="code-block">${escHtml(STATE.result.code)}</pre>
+              </div>` : ''}
+            ${STATE.tab==='features'?`
+              <div class="feat-wrap">
+                <h3 style="color:#fff;font-family:'Playfair Display',serif;margin-bottom:14px">✦ Built Features</h3>
+                ${(STATE.result.features||[]).map(f=>`
+                  <div class="feat-item">
+                    <span style="color:#f59e0b;flex-shrink:0">✓</span>
+                    <span style="color:#9ca3af;font-size:.88rem">${f}</span>
+                  </div>`).join('')}
+              </div>` : ''}
+          </div>
+        </div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderApps(){
+  const apps = STATE.user.apps||[];
+  if(!apps.length) return `
+    <div class="empty-state" style="min-height:60vh">
+      <div style="font-size:3rem">📂</div>
+      <h2 style="color:#fff;font-family:'Playfair Display',serif">No saved apps yet</h2>
+      <p style="color:#6b6b8a;font-size:.88rem">Build an app and save it to see it here</p>
+      <button class="btn-gold" style="width:auto;padding:10px 24px" onclick="gotoPage('builder')">Start Building →</button>
+    </div>`;
+  return `
+    <div style="padding:20px">
+      <h1 style="color:#fff;font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:16px">My Apps (${apps.length})</h1>
+      <div class="apps-grid">
+        ${apps.map(app=>`
+          <div class="app-card">
+            <div class="app-thumb">${app.icon}</div>
+            <div style="padding:12px">
+              <h3 style="color:#fff;font-size:.92rem;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${app.name}</h3>
+              <p style="color:#6b6b8a;font-size:.75rem;margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${app.description}</p>
+              <div style="display:flex;gap:7px">
+                <button class="act-btn" style="flex:1;border-color:#f59e0b40;color:#f59e0b;background:#f59e0b10;text-align:center;padding:6px" onclick="loadApp('${app.id}')">Open</button>
+                <button class="act-btn" style="border-color:#ef444440;color:#ef4444;background:#ef444410;padding:6px 10px" onclick="deleteApp('${app.id}')">Delete</button>
+              </div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function renderPricing(){
+  const u = STATE.user;
+  return `
+    <div class="pricing-page">
+      <div style="text-align:center;margin-bottom:28px">
+        <h1 style="color:#fff;font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:8px">Simple Pricing</h1>
+        <p style="color:#6b6b8a">All plans billed in ₹ INR · Cancel anytime</p>
+      </div>
+      ${STATE.pricingSuccess?`<div style="margin-bottom:16px;padding:14px;border-radius:10px;border:1px solid #22c55e40;background:#22c55e10;color:#22c55e;text-align:center;font-weight:600">✓ Plan upgraded! Credits added to your account.</div>`:''}
+      <div class="plan-cards">
+        ${PLANS.map(p=>{
+          const isCurrent = u.plan===p.id;
+          return `
+          <div class="plan-card ${isCurrent?'current':''}">
+            ${isCurrent?`<div style="position:absolute;top:12px;right:12px;font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:100px;background:${p.color}25;color:${p.color}">CURRENT</div>`:''}
+            <h3 style="color:#fff;font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:6px">${p.name}</h3>
+            <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:${p.color};margin:10px 0 4px">
+              ₹${fmtN(p.price)}<span style="font-size:.82rem;color:#6b6b8a;font-family:'DM Sans',sans-serif;font-weight:400">/mo</span>
+            </div>
+            <ul style="list-style:none;padding:0;margin:14px 0 18px">
+              ${[`${p.credits===999?'Unlimited':p.credits} AI builds/mo`,`${p.apps===999?'Unlimited':p.apps} saved apps`,'Code export','GST invoice'].map(f=>`
+                <li style="display:flex;align-items:center;gap:8px;font-size:.83rem;color:#9ca3af;padding:4px 0">
+                  <span style="color:${p.color}">✓</span>${f}
+                </li>`).join('')}
+            </ul>
+            <button onclick="${isCurrent?'':``openPayment(${JSON.stringify(p).replace(/"/g,"'")})``}"
+              style="width:100%;padding:11px;border-radius:10px;font-weight:700;font-size:.88rem;border:none;background:${isCurrent?p.color+'20':`linear-gradient(135deg,${p.color},${p.color}bb)`};color:${isCurrent?p.color:'#000'};cursor:${isCurrent?'default':'pointer'}">
+              ${isCurrent?'✓ Current Plan':`Upgrade to ${p.name} →`}
+            </button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function renderSettings(){
+  const u = STATE.user;
+  const plan = PLANS.find(p=>p.id===u.plan)||PLANS[0];
+  return `
+    <div class="settings-page">
+      <h1 style="color:#fff;font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:20px">Account Settings</h1>
+      <div class="settings-card">
+        <h2 style="color:#fff;font-size:.95rem;margin-bottom:12px">Profile</h2>
+        ${[['Name',u.name],['Email',u.email],['Phone',u.phone||'Not set'],['Member Since',u.joined]].map(([k,v])=>`
+          <div class="setting-row">
+            <span style="color:#6b6b8a;font-size:.85rem">${k}</span>
+            <span style="color:#fff;font-size:.85rem;font-weight:500">${v}</span>
+          </div>`).join('')}
+      </div>
+      <div class="settings-card" style="border-color:${plan.color}40;background:${plan.color}08">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h2 style="color:#fff;font-size:.95rem">Current Plan</h2>
+          <span style="background:${plan.color}20;color:${plan.color};border:1px solid ${plan.color}40;border-radius:100px;padding:3px 10px;font-size:.72rem;font-weight:700">${plan.name.toUpperCase()}</span>
+        </div>
+        <p style="color:#6b6b8a;font-size:.83rem">Credits: <strong style="color:${plan.color}">${u.credits===999999?'Unlimited':u.credits} / ${plan.credits===999?'Unlimited':plan.credits}</strong></p>
+        <p style="color:#6b6b8a;font-size:.83rem;margin-top:4px">Apps saved: <strong style="color:${plan.color}">${(u.apps||[]).length} / ${plan.apps===999?'Unlimited':plan.apps}</strong></p>
+      </div>
+      <button onclick="doLogout()" style="width:100%;padding:13px;border-radius:10px;border:1px solid #ef444430;color:#ef4444;background:#ef444408;font-size:.9rem;font-weight:600">
+        Sign Out
+      </button>
+    </div>`;
+}
+
+// ═══════════════════════════════════════
+// HELPER FUNCTIONS
+// ═══════════════════════════════════════
+function escHtml(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function encodePreview(code){
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><script src="https://cdn.tailwindcss.com"><\/script><script src="https://unpkg.com/react@18/umd/react.development.js"><\/script><script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script><script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script><style>body{margin:0;background:#f8fafc;font-family:system-ui,sans-serif}<\/style><\/head><body><div id="root"></div><script type="text/babel">${code} ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));<\/script><\/body><\/html>`;
+  return html.replace(/"/g,'&quot;');
+}
+
+function switchAuthMode(mode){
+  setState({authMode:mode, authStep:1, authErr:''});
+}
+
+function updateForm(key, val){
+  STATE.authForm = {...STATE.authForm, [key]:val};
+  // Don't re-render on every keystroke — just update state
+  STATE.authErr = '';
+}
+
+function gotoPage(page){
+  setState({page});
+}
+
+function loadApp(id){
+  const app = (STATE.user.apps||[]).find(a=>a.id===id);
+  if(app) setState({page:'builder', result:{appName:app.name,description:app.description,code:app.code,features:app.features}, tab:'preview'});
+}
+
+function deleteApp(id){
+  const users = getUsers();
+  const idx = users.findIndex(u=>u.id===STATE.user.id);
+  if(idx>=0){
+    users[idx].apps = (users[idx].apps||[]).filter(a=>a.id!==id);
+    saveUsers(users);
+    saveSession(users[idx]);
+    setState({user:users[idx]});
+  }
+  showToast('App deleted');
+}
+
+function openPayment(plan){
+  STATE.payModal = plan;
+  render();
+}
+
+// ═══════════════════════════════════════
+// EVENT ATTACHMENT
+// ═══════════════════════════════════════
+function attachAuthEvents(){
+  // Input events attached inline via oninput
+}
+
+function attachAppEvents(){
+  const pi = document.getElementById('prompt-input');
+  if(pi){
+    pi.addEventListener('input', e=>{
+      STATE.prompt = e.target.value;
+      const btn = document.getElementById('build-btn');
+      if(btn) btn.disabled = STATE.loading || !STATE.prompt.trim();
+    });
+    pi.addEventListener('keydown', e=>{
+      if(e.key==='Enter' && (e.metaKey||e.ctrlKey)) buildApp();
+    });
+  }
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+render();
+</script>
+</body>
+</html>
