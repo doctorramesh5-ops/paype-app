@@ -62,6 +62,44 @@ input:focus{border-color:rgba(245,158,11,.5)}
 .toggle-link{text-align:center;margin-top:12px;font-size:.8rem;color:var(--muted)}
 .toggle-link span{color:var(--gold);cursor:pointer;font-weight:600}
 
+
+/* ── PAYMENT SCREEN ── */
+#paymentScreen{display:none;position:fixed;inset:0;z-index:300;background:var(--bg);overflow-y:auto;padding:40px 20px}
+.pay-wrap{max-width:480px;margin:0 auto}
+.pay-back{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.82rem;cursor:pointer;margin-bottom:24px;background:none;border:none;font-family:'DM Sans',sans-serif}
+.pay-back:hover{color:var(--text)}
+.pay-header{text-align:center;margin-bottom:28px}
+.pay-header h2{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;margin-bottom:6px}
+.pay-header p{color:var(--muted);font-size:.85rem}
+.pay-plan-summary{background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(239,68,68,.06));border:1px solid rgba(245,158,11,.25);border-radius:16px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between}
+.pps-left .pps-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;color:var(--gold)}
+.pps-left .pps-desc{font-size:.8rem;color:var(--muted);margin-top:3px}
+.pps-right .pps-price{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--gold)}
+.pps-right .pps-period{font-size:.75rem;color:var(--muted)}
+.pay-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px}
+.pay-card h3{font-size:.88rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.pf{margin-bottom:14px}
+.pf label{display:block;font-size:.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.pf input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:10px 14px;color:var(--text);font-size:.88rem;outline:none;transition:border .2s;font-family:'DM Sans',sans-serif}
+.pf input:focus{border-color:rgba(245,158,11,.5)}
+.pf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pay-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.pm{padding:10px 6px;border-radius:10px;border:2px solid var(--border);text-align:center;cursor:pointer;transition:all .2s;font-size:.75rem;font-weight:600;color:var(--muted)}
+.pm:hover{border-color:rgba(245,158,11,.3)}
+.pm.active{border-color:var(--gold);background:rgba(245,158,11,.08);color:var(--gold)}
+.pm .pm-icon{font-size:1.3rem;display:block;margin-bottom:4px}
+.pay-secure{display:flex;align-items:center;justify-content:center;gap:6px;font-size:.73rem;color:var(--muted);margin-bottom:16px}
+.pay-btn{width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--red));color:#000;font-weight:800;font-size:1rem;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.pay-btn:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 8px 24px rgba(245,158,11,.3)}
+.pay-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.pay-divider{display:flex;align-items:center;gap:10px;margin:12px 0}
+.pay-divider::before,.pay-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.pay-divider span{color:var(--muted);font-size:.72rem}
+.rzp-btn{width:100%;padding:13px;border-radius:12px;background:#3395FF;color:#fff;font-weight:700;font-size:.92rem;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.rzp-btn:hover{opacity:.9}
+.pay-trial{text-align:center;margin-top:12px;font-size:.75rem;color:var(--muted)}
+.pay-err{color:var(--red);font-size:.8rem;text-align:center;margin-top:8px;min-height:16px}
+
 /* ── PLAN SELECTION ── */
 #planScreen{display:none;position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto;padding:40px 20px}
 .plan-wrap{max-width:900px;margin:0 auto}
@@ -93,6 +131,7 @@ input:focus{border-color:rgba(245,158,11,.5)}
 .plan-user-info .pui-name{font-weight:700;font-size:.95rem;margin-bottom:2px}
 .plan-user-info .pui-email{font-size:.8rem;color:var(--muted)}
 </style>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 <div class="orbs"><div class="orb o1"></div><div class="orb o2"></div></div>
@@ -278,7 +317,7 @@ loadScript('https://cdn.jsdelivr.net/npm/firebase@9.22.2/firebase-app-compat.min
     auth.onAuthStateChanged(function(user) {
       if (user) {
         // Firebase user logged in - check plan
-        var plan = sessionStorage.getItem('paype_plan');
+        var plan = localStorage.getItem('paype_plan');
         if (plan) {
           window.location.href = '/app';
         } else {
@@ -431,8 +470,8 @@ function verifyLoginOTP() {
       if(d.success){
         // OTP verified — sign in anonymously or create a custom token session
         // Store phone in session and proceed to plan selection
-        sessionStorage.setItem('paype_phone', loginOtpPhone);
-        sessionStorage.setItem('paype_login_method', 'phone');
+        localStorage.setItem('paype_phone', loginOtpPhone);
+        localStorage.setItem('paype_login_method', 'phone');
         // Create a fake user object for plan screen
         var fakeUser = {
           displayName: '+91 ' + loginOtpPhone,
@@ -560,8 +599,8 @@ var selectedPlan = null;
 function handleLoginSuccess(user) {
   // Always show plan screen for new login
   // Clear any old plan to force fresh selection
-  sessionStorage.removeItem('paype_plan');
-  sessionStorage.removeItem('paype_plan_price');
+  localStorage.removeItem('paype_plan');
+  localStorage.removeItem('paype_plan_price');
   showPlanScreen(user);
 }
 
@@ -586,13 +625,118 @@ function selectPlan(plan) {
 
 function continueToDashboard() {
   if (!selectedPlan) return;
-  sessionStorage.setItem('paype_plan', selectedPlan);
-  sessionStorage.setItem('paype_plan_price',
-    selectedPlan==='starter' ? '799' :
-    selectedPlan==='pro' ? '2999' : '8999'
-  );
-  window.location.href = '/app';
+  var prices = {starter:'799', pro:'2999', enterprise:'8999'};
+  var names = {starter:'Starter', pro:'Pro', enterprise:'Enterprise'};
+  var price = prices[selectedPlan];
+  localStorage.setItem('paype_plan', selectedPlan);
+  localStorage.setItem('paype_plan_price', price);
+  // Show payment screen
+  document.getElementById('planScreen').style.display = 'none';
+  document.getElementById('paymentScreen').style.display = 'block';
+  document.getElementById('ppsPlanName').textContent = names[selectedPlan] + ' Plan';
+  document.getElementById('ppsPlanPrice').textContent = price;
+  document.getElementById('payBtnAmount').textContent = price;
 }
+
+function showPayBack() {
+  document.getElementById('paymentScreen').style.display = 'none';
+  document.getElementById('planScreen').style.display = 'block';
+}
+
+// ── PAYMENT ───────────────────────────────────────────
+var payMethod = 'card';
+
+function selectPayMethod(el, method) {
+  payMethod = method;
+  document.querySelectorAll('.pm').forEach(function(p){p.classList.remove('active');});
+  el.classList.add('active');
+  document.getElementById('cardFields').style.display = method==='card' ? 'block' : 'none';
+  document.getElementById('upiFields').style.display = method==='upi' ? 'block' : 'none';
+  document.getElementById('netbankingFields').style.display = method==='netbanking' ? 'block' : 'none';
+}
+
+function formatCard(el) {
+  var v = el.value.replace(/\D/g,'').substring(0,16);
+  el.value = v.replace(/(\d{4})/g,'$1 ').trim();
+}
+function formatExpiry(el) {
+  var v = el.value.replace(/\D/g,'');
+  if(v.length>=2) v = v.substring(0,2)+'/'+v.substring(2,4);
+  el.value = v;
+}
+function setUPI(app) {
+  var placeholders = {gpay:'name@oksbi', phonepe:'9999999999@ybl', paytm:'9999999999@paytm', other:'yourname@upi'};
+  document.getElementById('upiId').placeholder = placeholders[app]||'yourname@upi';
+  document.getElementById('upiId').focus();
+}
+
+function processPayment() {
+  var err = document.getElementById('payErr');
+  err.textContent = '';
+  if(payMethod === 'card') {
+    var num = document.getElementById('cardNum').value.replace(/\s/g,'');
+    var name = document.getElementById('cardName').value.trim();
+    var exp = document.getElementById('cardExp').value.trim();
+    var cvv = document.getElementById('cardCvv').value.trim();
+    if(num.length < 16){err.textContent='Enter valid 16-digit card number.';return;}
+    if(!name){err.textContent='Enter cardholder name.';return;}
+    if(exp.length < 5){err.textContent='Enter valid expiry date.';return;}
+    if(cvv.length < 3){err.textContent='Enter valid CVV.';return;}
+  } else if(payMethod === 'upi') {
+    var upi = document.getElementById('upiId').value.trim();
+    if(!upi||!upi.includes('@')){err.textContent='Enter valid UPI ID.';return;}
+  }
+  openRazorpay();
+}
+
+function openRazorpay() {
+  var plan = localStorage.getItem('paype_plan') || 'starter';
+  var price = localStorage.getItem('paype_plan_price') || '799';
+  var names = {starter:'Starter', pro:'Pro', enterprise:'Enterprise'};
+
+  var options = {
+    key: 'rzp_live_Si0jGc1i23NVWo',
+    amount: parseInt(price) * 100,
+    currency: 'INR',
+    name: 'PayPe Technologies',
+    description: names[plan] + ' Plan - Monthly Subscription',
+    prefill: {
+      name: localStorage.getItem('paype_user_name') || '',
+      email: localStorage.getItem('paype_user_email') || '',
+      contact: localStorage.getItem('paype_phone') ? '91'+localStorage.getItem('paype_phone') : ''
+    },
+    theme: { color: '#f59e0b' },
+    handler: function(response) {
+      localStorage.setItem('paype_payment_id', response.razorpay_payment_id);
+      localStorage.setItem('paype_paid', 'true');
+      paymentSuccess();
+    },
+    modal: {
+      ondismiss: function() {
+        document.getElementById('payErr').textContent = 'Payment cancelled. Please try again.';
+      }
+    }
+  };
+
+  var rzp = new Razorpay(options);
+  rzp.on('payment.failed', function(response){
+    document.getElementById('payErr').textContent = 'Payment failed: ' + response.error.description;
+  });
+  rzp.open();
+}
+
+function paymentSuccess() {
+  document.getElementById('paymentScreen').innerHTML =
+    '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:40px">' +
+    '<div style="font-size:4rem;margin-bottom:20px">🎉</div>' +
+    '<h2 style="font-family:Playfair Display,serif;font-size:1.8rem;font-weight:900;margin-bottom:10px">Payment Successful!</h2>' +
+    '<p style="color:var(--muted);margin-bottom:24px">Welcome to PayPe Technologies.<br/>Taking you to your dashboard…</p>' +
+    '<div style="display:flex;align-items:center;gap:10px;color:var(--gold)">' +
+    '<div style="width:18px;height:18px;border:2px solid var(--gold);border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite"></div>' +
+    'Redirecting…</div></div>';
+  setTimeout(function(){ window.location.href = '/app'; }, 2500);
+}
+
 </script>
 
 <!-- ══ PLAN SELECTION SCREEN ══ -->
@@ -678,6 +822,105 @@ function continueToDashboard() {
         🔒 Secure payment · Cancel anytime · 7-day free trial
       </p>
     </div>
+  </div>
+</div>
+
+
+<!-- ══ PAYMENT SCREEN ══ -->
+<div id="paymentScreen">
+  <div class="pay-wrap">
+    <button class="pay-back" onclick="showPayBack()">← Back to Plans</button>
+
+    <div class="pay-header">
+      <div style="font-size:2rem;margin-bottom:10px">💳</div>
+      <h2>Complete Payment</h2>
+      <p>You're one step away from building your app!</p>
+    </div>
+
+    <!-- Plan Summary -->
+    <div class="pay-plan-summary">
+      <div class="pps-left">
+        <div class="pps-name" id="ppsPlanName">Starter Plan</div>
+        <div class="pps-desc">Monthly subscription · Cancel anytime</div>
+      </div>
+      <div class="pps-right" style="text-align:right">
+        <div class="pps-price">₹<span id="ppsPlanPrice">799</span></div>
+        <div class="pps-period">/month</div>
+      </div>
+    </div>
+
+    <!-- Payment Method -->
+    <div class="pay-card">
+      <h3>💳 Choose Payment Method</h3>
+      <div class="pay-methods">
+        <div class="pm active" onclick="selectPayMethod(this,'card')"><span class="pm-icon">💳</span>Card</div>
+        <div class="pm" onclick="selectPayMethod(this,'upi')"><span class="pm-icon">📱</span>UPI</div>
+        <div class="pm" onclick="selectPayMethod(this,'netbanking')"><span class="pm-icon">🏦</span>Net Banking</div>
+      </div>
+
+      <!-- Card Fields -->
+      <div id="cardFields">
+        <div class="pf"><label>Card Number</label><input type="tel" id="cardNum" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)"/></div>
+        <div class="pf"><label>Cardholder Name</label><input type="text" id="cardName" placeholder="Name on card"/></div>
+        <div class="pf-row">
+          <div class="pf"><label>Expiry Date</label><input type="tel" id="cardExp" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)"/></div>
+          <div class="pf"><label>CVV</label><input type="tel" id="cardCvv" placeholder="•••" maxlength="3"/></div>
+        </div>
+      </div>
+
+      <!-- UPI Fields -->
+      <div id="upiFields" style="display:none">
+        <div class="pf"><label>UPI ID</label><input type="text" id="upiId" placeholder="yourname@upi"/></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px">
+          <div onclick="setUPI('gpay')" style="padding:10px 6px;border-radius:9px;border:1px solid var(--border);text-align:center;cursor:pointer;font-size:.72rem;color:var(--muted);transition:all .2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.2rem">G</div>GPay
+          </div>
+          <div onclick="setUPI('phonepe')" style="padding:10px 6px;border-radius:9px;border:1px solid var(--border);text-align:center;cursor:pointer;font-size:.72rem;color:var(--muted);transition:all .2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.2rem">₱</div>PhonePe
+          </div>
+          <div onclick="setUPI('paytm')" style="padding:10px 6px;border-radius:9px;border:1px solid var(--border);text-align:center;cursor:pointer;font-size:.72rem;color:var(--muted);transition:all .2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.2rem">P</div>Paytm
+          </div>
+          <div onclick="setUPI('other')" style="padding:10px 6px;border-radius:9px;border:1px solid var(--border);text-align:center;cursor:pointer;font-size:.72rem;color:var(--muted);transition:all .2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.2rem">🔗</div>Other
+          </div>
+        </div>
+      </div>
+
+      <!-- Net Banking Fields -->
+      <div id="netbankingFields" style="display:none">
+        <div class="pf"><label>Select Bank</label>
+          <select style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:10px 14px;color:var(--text);font-size:.88rem;outline:none;font-family:'DM Sans',sans-serif">
+            <option>State Bank of India</option>
+            <option>HDFC Bank</option>
+            <option>ICICI Bank</option>
+            <option>Axis Bank</option>
+            <option>Kotak Mahindra Bank</option>
+            <option>Punjab National Bank</option>
+            <option>Bank of Baroda</option>
+            <option>Canara Bank</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="pay-secure">🔒 256-bit SSL encrypted · Powered by Razorpay</div>
+    <div class="pay-err" id="payErr"></div>
+
+    <!-- Pay Button -->
+    <button class="pay-btn" onclick="processPayment()" id="payNowBtn">
+      🔒 Pay ₹<span id="payBtnAmount">799</span> Securely
+    </button>
+
+    <div class="pay-divider"><span>or pay with</span></div>
+
+    <!-- Razorpay Button -->
+    <button class="rzp-btn" onclick="openRazorpay()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M13.5 0L6 15h5.25L8.25 24 18 9h-5.25z"/></svg>
+      Pay with Razorpay
+    </button>
+
+    <div class="pay-trial">🎉 7-day free trial · No charge today · Cancel anytime</div>
   </div>
 </div>
 

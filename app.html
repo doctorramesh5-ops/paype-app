@@ -25,13 +25,47 @@
 html,body{height:100%}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
 
+
+/* ── SIDEBAR ── */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:99;transition:transform .3s}
+.sb-logo{display:flex;align-items:center;gap:8px;padding:18px 16px;border-bottom:1px solid var(--border)}
+.sb-logo-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--gold),var(--red));display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:.9rem;font-family:'Playfair Display',serif;flex-shrink:0}
+.sb-logo-text{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:900}
+.sb-logo-text span{color:var(--gold)}
+.sb-nav{flex:1;padding:12px 8px;overflow-y:auto}
+.sb-label{font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:600;padding:0 8px;margin:14px 0 6px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;color:var(--muted);font-size:.83rem;font-weight:500;cursor:pointer;transition:all .2s;margin-bottom:2px;border:none;background:transparent;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
+.sb-item:hover{background:var(--bg3);color:var(--text)}
+.sb-item.active{background:rgba(56,189,248,.1);color:var(--accent);border:1px solid rgba(56,189,248,.15)}
+.sb-item .ni{width:18px;text-align:center;font-size:.85rem;flex-shrink:0}
+.sb-bottom{padding:10px 8px;border-top:1px solid var(--border)}
+.sb-user{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;background:var(--bg3);border:1px solid var(--border);margin-bottom:8px;cursor:pointer}
+.sb-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--red));display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:.75rem;flex-shrink:0;overflow:hidden}
+.sb-info{flex:1;min-width:0}
+.sb-name{font-size:.78rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-plan{font-size:.67rem;color:var(--gold)}
+.sb-theme{display:flex;gap:3px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:7px}
+.sb-tbtn{flex:1;padding:5px 3px;border-radius:6px;border:none;cursor:pointer;background:transparent;color:var(--muted);font-size:.7rem;font-weight:600;transition:all .2s;font-family:'DM Sans',sans-serif}
+.sb-tbtn.active{background:linear-gradient(135deg,var(--gold),var(--red));color:#000}
+.sb-logout{width:100%;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(239,68,68,.25);color:var(--red);font-size:.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.sb-logout:hover{background:rgba(239,68,68,.08)}
+.ham{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:7px;cursor:pointer;flex-direction:column;gap:4px}
+.ham span{width:16px;height:2px;background:var(--text);border-radius:2px;display:block}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0!important}
+  .topbar{padding-left:56px!important}
+  .ham{display:flex}
+}
+
 /* ── ANIMATED BACKGROUND ── */
 .bg-scene{position:fixed;inset:0;z-index:0;overflow:hidden}
 .bg-scene canvas{position:absolute;inset:0;width:100%;height:100%}
 .bg-gradient{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(56,189,248,.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(129,140,248,.08) 0%,transparent 50%),radial-gradient(ellipse at 50% 100%,rgba(245,158,11,.05) 0%,transparent 50%)}
 
 /* ── TOPBAR ── */
-.topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(10,10,20,.7);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.topbar{position:fixed;top:0;left:220px;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:rgba(10,10,20,.7);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .tb-left{display:flex;align-items:center;gap:12px}
 .tb-logo{display:flex;align-items:center;gap:8px;font-family:'Playfair Display',serif;font-size:1rem;font-weight:900}
 .tb-logo-icon{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--gold),var(--red));display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:.85rem}
@@ -53,7 +87,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .tbtn.active{background:linear-gradient(135deg,var(--gold),var(--red));color:#000}
 
 /* ── MAIN CONTENT ── */
-.main{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px 40px}
+.main{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px 40px;margin-left:220px}
 
 /* HERO */
 .hero{text-align:center;max-width:700px;width:100%;animation:fadeUp .6s ease both}
@@ -154,6 +188,46 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 </div>
 
 <div class="overlay" id="overlay" onclick="closeSideMenu()"></div>
+
+<!-- HAMBURGER -->
+<div class="ham" id="ham" onclick="toggleSidebar()"><span></span><span></span><span></span></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">P</div>
+    <div class="sb-logo-text">PayPe <span>Tech</span></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-label">Main</div>
+    <button class="sb-item active" onclick="sbNav(this)"><span class="ni">🏠</span> Dashboard</button>
+    <button class="sb-item" onclick="sbNav(this)"><span class="ni">⚡</span> App Builder</button>
+    <button class="sb-item" onclick="sbNav(this)"><span class="ni">📱</span> My Apps</button>
+    <button class="sb-item" onclick="sbNav(this)"><span class="ni">📊</span> Analytics</button>
+    <div class="sb-label">Tools</div>
+    <button class="sb-item" onclick="sbNav(this)"><span class="ni">🎨</span> Templates</button>
+    <button class="sb-item" onclick="sbNav(this)"><span class="ni">🔌</span> Integrations</button>
+    <button class="sb-item" onclick="sbNav(this)"><span class="ni">💳</span> Payments</button>
+    <div class="sb-label">Account</div>
+    <button class="sb-item" onclick="openSideMenu()"><span class="ni">⚙️</span> Settings</button>
+    <button class="sb-item" onclick="sbNav(this)"><span class="ni">💬</span> Support</button>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-user" onclick="openSideMenu()">
+      <div class="sb-av" id="sbAvatar">U</div>
+      <div class="sb-info">
+        <div class="sb-name" id="sbName">Loading…</div>
+        <div class="sb-plan" id="sbPlan">Starter Plan</div>
+      </div>
+    </div>
+    <div class="sb-theme">
+      <button class="sb-tbtn" onclick="setTheme('light')">☀️ Light</button>
+      <button class="sb-tbtn active" onclick="setTheme('dark')">🌙 Dark</button>
+      <button class="sb-tbtn" onclick="setTheme('system')">💻 Sys</button>
+    </div>
+    <button class="sb-logout" onclick="logout()">🚪 Sign Out</button>
+  </div>
+</div>
 
 <!-- ── TOPBAR ── -->
 <div class="topbar">
@@ -308,8 +382,10 @@ function setTheme(t){
   document.documentElement.setAttribute('data-theme',t);
   localStorage.setItem('paype_theme',t);
   document.querySelectorAll('.tbtn').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.sb-tbtn').forEach(function(b){b.classList.remove('active');});
   var map={light:0,dark:1,system:2};
-  document.querySelectorAll('.tbtn')[map[t]].classList.add('active');
+  if(document.querySelectorAll('.tbtn')[map[t]]) document.querySelectorAll('.tbtn')[map[t]].classList.add('active');
+  if(document.querySelectorAll('.sb-tbtn')[map[t]]) document.querySelectorAll('.sb-tbtn')[map[t]].classList.add('active');
   ['light','dark','system'].forEach(function(th){
     var el=document.getElementById('ts-'+th);
     if(el) el.classList.toggle('active',th===t);
@@ -355,6 +431,7 @@ function loadUser(name, email, plan, photo){
   document.getElementById('smAvatar').textContent=initial;
   document.getElementById('avatarBtn').textContent=initial;
   document.getElementById('heroPlanName').textContent=planLabel+' Plan';
+  updateSidebarUser(name, plan, photo);
   if(photo){
     var img='<img src="'+photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
     document.getElementById('smAvatar').innerHTML=img;
@@ -457,6 +534,39 @@ function showSection(s){
   }
   draw();
 })();
+
+// ── SIDEBAR NAV ───────────────────────────────────────
+function sbNav(btn){
+  document.querySelectorAll('.sb-item').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  if(window.innerWidth<768){
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+  }
+}
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+// ── UPDATE SIDEBAR USER ───────────────────────────────
+function updateSidebarUser(name, plan, photo){
+  var initial=name.charAt(0).toUpperCase();
+  var planLabel=plan.charAt(0).toUpperCase()+plan.slice(1);
+  if(document.getElementById('sbAvatar')) document.getElementById('sbAvatar').textContent=initial;
+  if(document.getElementById('sbName')) document.getElementById('sbName').textContent=name;
+  if(document.getElementById('sbPlan')) document.getElementById('sbPlan').textContent=planLabel+' Plan';
+  // Update sb theme buttons
+  var t=localStorage.getItem('paype_theme')||'dark';
+  document.querySelectorAll('.sb-tbtn').forEach(function(b){b.classList.remove('active');});
+  var map={light:0,dark:1,system:2};
+  document.querySelectorAll('.sb-tbtn')[map[t]]&&document.querySelectorAll('.sb-tbtn')[map[t]].classList.add('active');
+  if(photo){
+    var img='<img src="'+photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+    if(document.getElementById('sbAvatar')) document.getElementById('sbAvatar').innerHTML=img;
+  }
+}
+
 </script>
 </body>
 </html>
