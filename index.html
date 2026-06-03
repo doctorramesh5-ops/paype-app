@@ -316,13 +316,22 @@ loadScript('https://cdn.jsdelivr.net/npm/firebase@9.22.2/firebase-app-compat.min
     // Check if already logged in via Firebase (Google/Email)
     auth.onAuthStateChanged(function(user) {
       if (user) {
-        // Firebase user logged in - check plan
         var plan = localStorage.getItem('paype_plan');
-        if (plan) {
+        var paid = localStorage.getItem('paype_paid');
+        var justLoggedIn = sessionStorage.getItem('paype_just_logged_in');
+
+        if (plan && paid === 'true') {
+          // Existing paid user - go straight to app
           window.location.href = '/app';
-        } else {
+        } else if (justLoggedIn === 'true') {
+          // Just logged in this session - show plan
+          sessionStorage.removeItem('paype_just_logged_in');
           showPlanScreen(user);
+        } else if (plan) {
+          // Has plan but not paid yet - go to app
+          window.location.href = '/app';
         }
+        // else: stay on login page (returning user who needs to login again)
       }
     });
 
@@ -597,10 +606,19 @@ function otpNav2(el,idx){if(el.value&&idx<5)document.querySelectorAll('.rotp')[i
 var selectedPlan = null;
 
 function handleLoginSuccess(user) {
-  // Always show plan screen for new login
-  // Clear any old plan to force fresh selection
+  var paid = localStorage.getItem('paype_paid');
+  var plan = localStorage.getItem('paype_plan');
+
+  if (paid === 'true' && plan) {
+    // Already paid - go directly to dashboard
+    window.location.href = '/app';
+    return;
+  }
+
+  // New user or unpaid - show plan selection
   localStorage.removeItem('paype_plan');
   localStorage.removeItem('paype_plan_price');
+  sessionStorage.setItem('paype_just_logged_in', 'true');
   showPlanScreen(user);
 }
 
