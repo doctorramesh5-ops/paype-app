@@ -1,817 +1,685 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>PayPe AI Builder – app.paype.co.in</title>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<title>PayPe Technologies – Login</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
+:root[data-theme="dark"]{--bg:#08080f;--bg2:#0f0f1a;--bg3:#14141f;--border:#1e1e30;--text:#e2e2f0;--muted:#6b6b8a;--gold:#f59e0b;--red:#ef4444;--green:#22c55e;--card:rgba(15,15,26,0.97);--shadow:0 25px 60px rgba(0,0,0,.6)}
+:root[data-theme="light"]{--bg:#f0f0f8;--bg2:#fff;--bg3:#eaeaf5;--border:#d0d0e0;--text:#1a1a2e;--muted:#6b6b8a;--gold:#d97706;--red:#dc2626;--green:#16a34a;--card:rgba(255,255,255,0.98);--shadow:0 25px 60px rgba(0,0,0,.12)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#08080f;color:#e2e2f0;font-family:'DM Sans',sans-serif;min-height:100vh}
-input,button,textarea{font-family:'DM Sans',sans-serif}
-input:focus,textarea:focus{outline:none}
-button{cursor:pointer}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;overflow:hidden;transition:background .3s,color .3s}
+.orbs{position:fixed;inset:0;pointer-events:none;z-index:0}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.25;animation:float 8s ease-in-out infinite}
+.o1{width:400px;height:400px;background:radial-gradient(var(--gold),transparent);top:-100px;left:-100px}
+.o2{width:300px;height:300px;background:radial-gradient(var(--red),transparent);bottom:-80px;right:-80px;animation-delay:3s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+.theme-bar{position:fixed;top:16px;right:16px;display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:100px;padding:5px 8px;z-index:100;backdrop-filter:blur(20px)}
+.tbtn{width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:transparent;color:var(--muted);font-size:.85rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.tbtn.active{background:linear-gradient(135deg,var(--gold),var(--red));color:#000}
+.card{width:100%;max-width:450px;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px;position:relative;z-index:10;backdrop-filter:blur(20px);box-shadow:var(--shadow);animation:up .4s ease;max-height:95vh;overflow-y:auto}
+@keyframes up{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.logo{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:24px}
+.li{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--red));display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:1.1rem;font-family:'Playfair Display',serif}
+.lt{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900}.lt span{color:var(--gold)}
+h2{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;text-align:center;margin-bottom:4px}
+.sub{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:22px}
+.tabs{display:flex;background:var(--bg3);border-radius:11px;padding:3px;margin-bottom:20px;gap:3px}
+.tab{flex:1;padding:8px 4px;text-align:center;font-size:.78rem;font-weight:600;cursor:pointer;border-radius:9px;color:var(--muted);transition:all .2s;border:none;background:transparent;font-family:'DM Sans',sans-serif}
+.tab.active{background:linear-gradient(135deg,var(--gold),var(--red));color:#000}
+.social-row{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:16px}
+.sbtn{padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;font-family:'DM Sans',sans-serif}
+.sbtn:hover{border-color:var(--gold)}
+.div{display:flex;align-items:center;gap:10px;margin:12px 0}
+.div::before,.div::after{content:'';flex:1;height:1px;background:var(--border)}
+.div span{color:var(--muted);font-size:.72rem}
+.ig{margin-bottom:12px}
+.ig label{display:block;font-size:.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.pr{display:flex;gap:7px}
+.pfx{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--gold);font-weight:700;font-size:.85rem;display:flex;align-items:center;white-space:nowrap}
+input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:10px 13px;color:var(--text);font-size:.88rem;outline:none;transition:border .2s;font-family:'DM Sans',sans-serif}
+input:focus{border-color:rgba(245,158,11,.5)}
+.otp-row{display:flex;gap:7px;justify-content:center;margin:8px 0}
+.otp-row input{width:42px;height:48px;text-align:center;font-size:1.2rem;font-weight:700;padding:0;flex:0 0 42px}
+.btn{width:100%;padding:12px;border-radius:11px;font-weight:700;font-size:.9rem;cursor:pointer;border:none;transition:all .2s;font-family:'DM Sans',sans-serif;margin-top:4px}
+.bp{background:linear-gradient(135deg,var(--gold),var(--red));color:#000}
+.bp:hover{opacity:.9;transform:translateY(-1px)}
+.bs{background:var(--bg3);border:1px solid var(--border);color:var(--text);margin-top:7px}
+.bs:hover{border-color:var(--gold);color:var(--gold)}
+.err{font-size:.79rem;margin-top:7px;text-align:center;min-height:16px}
+.err.red{color:var(--red)}.err.grn{color:var(--green)}
+.fgt{text-align:right;margin:-6px 0 10px;font-size:.78rem;color:var(--gold);cursor:pointer}
+.stp{display:none}.stp.active{display:block}
+.bk{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:.8rem;cursor:pointer;margin-bottom:14px;background:none;border:none;font-family:'DM Sans',sans-serif}
+.bk:hover{color:var(--text)}
+.pdis{text-align:center;color:var(--muted);font-size:.83rem;margin-bottom:14px}
+.pdis strong{color:var(--text)}
+.rsnd{text-align:center;margin-top:10px;font-size:.78rem;color:var(--muted)}
+.rsnd span{color:var(--gold);cursor:pointer;font-weight:600}
+.alink{text-align:center;margin-top:16px;font-size:.78rem;color:var(--muted)}
+.alink a{color:var(--gold);font-weight:600;text-decoration:none}
+.toggle-link{text-align:center;margin-top:12px;font-size:.8rem;color:var(--muted)}
+.toggle-link span{color:var(--gold);cursor:pointer;font-weight:600}
 
-/* AUTH */
-.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;background:radial-gradient(ellipse at 30% 20%,#1a0900,#080810 50%,#000308)}
-.auth-box{width:100%;max-width:420px;background:rgba(15,15,25,.97);border:1px solid rgba(245,158,11,.25);border-radius:20px;padding:32px;box-shadow:0 24px 80px rgba(0,0,0,.6)}
-.logo{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-weight:900;font-size:1.4rem;justify-content:center;margin-bottom:6px}
-.logo-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:1rem}
-.auth-sub{text-align:center;color:#6b6b8a;font-size:.85rem;margin-bottom:24px}
-.auth-tabs{display:flex;border-radius:10px;overflow:hidden;border:1px solid #1e1e30;margin-bottom:20px}
-.auth-tab{flex:1;padding:10px;font-size:.85rem;font-weight:600;border:none;background:transparent;color:#9ca3af;transition:all .2s}
-.auth-tab.active{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000}
-.field{margin-bottom:14px}
-.field label{display:block;font-size:.72rem;color:#6b6b8a;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.field input{width:100%;background:#0a0a15;border:1px solid #1e1e30;border-radius:10px;padding:12px 14px;color:#fff;font-size:.92rem;transition:border .2s}
-.field input:focus{border-color:rgba(245,158,11,.5)}
-.btn-gold{width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000;font-weight:700;font-size:.95rem;border:none;transition:opacity .2s;margin-top:4px}
-.btn-gold:hover{opacity:.88}
-.btn-ghost{width:100%;padding:11px;border-radius:10px;background:transparent;border:1px solid #1e1e30;color:#9ca3af;font-size:.85rem;margin-top:8px;transition:all .2s}
-.btn-ghost:hover{border-color:#f59e0b;color:#f59e0b}
-.err{color:#ef4444;font-size:.8rem;text-align:center;margin:8px 0;min-height:18px}
-.plan-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
-.plan-opt{border:1px solid #1e1e30;border-radius:9px;padding:10px 6px;text-align:center;transition:all .2s}
-.plan-opt.sel{border-color:#f59e0b;background:rgba(245,158,11,.08)}
-.plan-name{font-size:.72rem;font-weight:700;color:#f59e0b}
-.plan-price{font-size:.88rem;font-weight:800;color:#fff;margin-top:2px}
-
-/* APP SHELL */
-.shell{display:flex;flex-direction:column;height:100vh}
-header{height:58px;background:rgba(8,8,15,.95);border-bottom:1px solid #1e1e30;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:100;flex-shrink:0}
-.h-logo{display:flex;align-items:center;gap:8px;font-family:'Playfair Display',serif;font-weight:900;font-size:1rem}
-.h-logo-icon{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:.85rem}
-nav{display:flex;gap:2px}
-.nav-btn{padding:6px 11px;border-radius:7px;font-size:.78rem;font-weight:500;border:none;background:transparent;color:#6b6b8a;transition:all .2s}
-.nav-btn.active,.nav-btn:hover{background:#f59e0b15;color:#f59e0b}
-.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;color:#000;font-weight:700;font-size:.85rem}
-main{flex:1;overflow:auto}
-
-/* BUILDER */
-.builder{display:flex;flex-direction:column;height:100%}
-.credits-bar{padding:6px 16px;border-bottom:1px solid #1e1e30;display:flex;align-items:center;justify-content:space-between;font-size:.75rem;color:#9ca3af;flex-shrink:0}
-.credit-pill{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:#f59e0b;padding:2px 10px;border-radius:100px;font-size:.72rem;font-weight:700}
-.prompt-area{padding:12px 16px;border-bottom:1px solid #1e1e30;flex-shrink:0}
-.prompt-box{display:flex;align-items:flex-start;gap:10px;background:#0f0f1a;border:1px solid #1e1e30;border-radius:12px;padding:12px;transition:border .2s}
-.prompt-box:focus-within{border-color:rgba(245,158,11,.4)}
-.prompt-icon{color:#f59e0b;font-size:1.1rem;margin-top:2px;flex-shrink:0}
-.prompt-input{flex:1;background:transparent;border:none;color:#fff;font-size:.9rem;resize:none;line-height:1.6;min-height:44px}
-.build-btn{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000;font-weight:700;font-size:.85rem;padding:9px 16px;border-radius:9px;border:none;white-space:nowrap;flex-shrink:0;transition:opacity .2s}
-.build-btn:disabled{opacity:.4}
-.chips{display:flex;gap:7px;margin-top:9px;overflow-x:auto;padding-bottom:2px}
-.chip{background:#0f0f1a;border:1px solid #1e1e30;border-radius:100px;padding:5px 12px;color:#9ca3af;font-size:.75rem;white-space:nowrap;transition:all .2s}
-.chip:hover{border-color:#f59e0b;color:#f59e0b}
-.output{flex:1;overflow:hidden;display:flex;flex-direction:column}
-.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:14px}
-.empty-icon{width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(239,68,68,.1));border:1px solid rgba(245,158,11,.2);display:flex;align-items:center;justify-content:center;font-size:1.6rem}
-.loading-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
-.spinner{width:50px;height:50px;position:relative}
-.spinner::before{content:'';position:absolute;inset:0;border-radius:50%;border:4px solid rgba(245,158,11,.15)}
-.spinner::after{content:'';position:absolute;inset:0;border-radius:50%;border:4px solid transparent;border-top-color:#f59e0b;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.result-header{padding:8px 16px;border-bottom:1px solid #1e1e30;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(15,15,25,.5);flex-shrink:0}
-.result-title{display:flex;align-items:center;gap:8px;min-width:0}
-.result-dot{width:14px;height:14px;border-radius:4px;background:linear-gradient(135deg,#f59e0b,#ef4444);flex-shrink:0}
-.result-name{font-weight:600;font-size:.88rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.result-actions{display:flex;align-items:center;gap:7px;flex-shrink:0}
-.act-btn{padding:5px 10px;border-radius:7px;font-size:.72rem;font-weight:600;border:1px solid;transition:all .2s}
-.tab-group{display:flex;border-radius:7px;overflow:hidden;border:1px solid #1e1e30}
-.tab-btn{padding:5px 10px;font-size:.72rem;border:none;background:transparent;color:#6b6b8a;transition:all .2s}
-.tab-btn.active{background:#f59e0b20;color:#f59e0b}
-.preview-wrap{height:100%;padding:10px}
-.preview-frame{height:100%;border-radius:10px;overflow:hidden;border:1px solid #1e1e30}
-.code-wrap{height:100%;overflow:auto;padding:14px}
-.code-block{font-size:.72rem;color:#4ade80;font-family:monospace;background:#0a0a15;border-radius:10px;padding:14px;border:1px solid #1e1e30;overflow-x:auto;white-space:pre-wrap;line-height:1.6}
-.feat-wrap{padding:20px;overflow:auto;height:100%}
-.feat-item{display:flex;gap:10px;padding:11px;background:#0f0f1a;border:1px solid #1e1e30;border-radius:9px;margin-bottom:9px}
-
-/* PRICING MODAL */
-.modal-bg{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px}
-.modal-box{background:#0f0f1a;border:1px solid rgba(245,158,11,.3);border-radius:20px;padding:28px;max-width:360px;width:100%;text-align:center}
-
-/* PRICING PAGE */
-.pricing-page{max-width:960px;margin:0 auto;padding:24px}
-.plan-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
-.plan-card{background:#0f0f1a;border:1px solid #1e1e30;border-radius:18px;padding:26px;position:relative;transition:transform .2s}
-.plan-card:hover{transform:translateY(-2px)}
-.plan-card.current{border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.05)}
-
-/* APPS */
-.apps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:20px}
-.app-card{background:#0f0f1a;border:1px solid #1e1e30;border-radius:14px;overflow:hidden}
-.app-thumb{height:72px;background:linear-gradient(135deg,#1a1a2e,#0f0a1a);display:flex;align-items:center;justify-content:center;font-size:1.8rem;border-bottom:1px solid #1e1e30}
-
-/* SETTINGS */
-.settings-page{max-width:580px;margin:0 auto;padding:24px}
-.settings-card{background:#0f0f1a;border:1px solid #1e1e30;border-radius:14px;padding:20px;margin-bottom:14px}
-.setting-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #1e1e30}
-.setting-row:last-child{border-bottom:none}
-
-/* SUCCESS TOAST */
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);z-index:999;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#000;font-weight:700;font-size:.85rem;padding:11px 22px;border-radius:100px;transition:transform .35s;white-space:nowrap;pointer-events:none}
-.toast.show{transform:translateX(-50%) translateY(0)}
+/* ── PLAN SELECTION ── */
+#planScreen{display:none;position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto;padding:40px 20px}
+.plan-wrap{max-width:900px;margin:0 auto}
+.plan-header{text-align:center;margin-bottom:40px}
+.plan-header h2{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;margin-bottom:8px}
+.plan-header h2 span{background:linear-gradient(135deg,var(--gold),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.plan-header p{color:var(--muted);font-size:.9rem}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:32px}
+.plan-card{background:var(--card);border:2px solid var(--border);border-radius:20px;padding:28px;cursor:pointer;transition:all .3s;position:relative;text-align:center}
+.plan-card:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(0,0,0,.3)}
+.plan-card.selected{border-color:var(--gold);background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(239,68,68,.04))}
+.plan-card.popular{border-color:rgba(245,158,11,.4)}
+.popular-tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold),var(--red));color:#000;font-size:.7rem;font-weight:800;padding:4px 14px;border-radius:100px;white-space:nowrap}
+.plan-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;margin-bottom:4px}
+.plan-price{font-size:2.2rem;font-weight:900;color:var(--gold);margin:12px 0 4px;font-family:'Playfair Display',serif}
+.plan-price sup{font-size:1rem}
+.plan-price span{font-size:.85rem;color:var(--muted);font-weight:400;font-family:'DM Sans',sans-serif}
+.plan-desc{color:var(--muted);font-size:.8rem;margin-bottom:16px}
+.plan-features{list-style:none;text-align:left;margin-bottom:20px}
+.plan-features li{font-size:.82rem;padding:5px 0;display:flex;align-items:center;gap:8px;color:var(--text);border-bottom:1px solid var(--border)}
+.plan-features li:last-child{border-bottom:none}
+.plan-features li::before{content:'✓';color:var(--gold);font-weight:700;flex-shrink:0}
+.plan-select-btn{width:100%;padding:12px;border-radius:11px;font-weight:700;font-size:.88rem;cursor:pointer;border:2px solid var(--border);background:transparent;color:var(--text);font-family:'DM Sans',sans-serif;transition:all .2s}
+.plan-card.selected .plan-select-btn,.plan-select-btn:hover{background:linear-gradient(135deg,var(--gold),var(--red));color:#000;border-color:transparent}
+.plan-continue-btn{width:100%;max-width:400px;margin:0 auto;display:block;padding:14px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--red));color:#000;font-weight:700;font-size:1rem;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.plan-continue-btn:hover{opacity:.9;transform:translateY(-2px)}
+.plan-continue-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.plan-user-info{text-align:center;margin-bottom:28px;padding:14px 20px;background:var(--card);border:1px solid var(--border);border-radius:12px;max-width:400px;margin:0 auto 28px}
+.plan-user-info .pui-name{font-weight:700;font-size:.95rem;margin-bottom:2px}
+.plan-user-info .pui-email{font-size:.8rem;color:var(--muted)}
 </style>
 </head>
 <body>
+<div class="orbs"><div class="orb o1"></div><div class="orb o2"></div></div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+<!-- THEME -->
+<div class="theme-bar">
+  <button class="tbtn" onclick="setTheme('light')" title="Light">☀️</button>
+  <button class="tbtn active" onclick="setTheme('dark')" title="Dark">🌙</button>
+  <button class="tbtn" onclick="setTheme('system')" title="System">💻</button>
+</div>
 
-<div id="root"></div>
+<div class="card">
+  <div class="logo"><div class="li">P</div><div class="lt">PayPe <span>Technologies</span></div></div>
+  <h2 id="cardTitle">Welcome Back</h2>
+  <p class="sub" id="cardSub">Sign in to your account</p>
+
+  <!-- MAIN TABS: Login / Register -->
+  <div class="tabs">
+    <button class="tab active" id="tabLogin" onclick="switchMainTab('login')">Sign In</button>
+    <button class="tab" id="tabRegister" onclick="switchMainTab('register')">Create Account</button>
+  </div>
+
+  <!-- ════ LOGIN SECTION ════ -->
+  <div id="loginSection">
+    <!-- Method tabs -->
+    <div class="tabs" style="margin-bottom:16px">
+      <button class="tab active" id="mTabEmail" onclick="switchMethod('email')">Email</button>
+      <button class="tab" id="mTabPhone" onclick="switchMethod('phone')">📱 Mobile OTP</button>
+    </div>
+
+    <!-- EMAIL LOGIN -->
+    <div id="emailLogin">
+      <div class="social-row">
+        <button class="sbtn" onclick="googleLogin()">
+          <svg width="15" height="15" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.8 2.5 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6C12.4 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.5 2.8-2.2 5.2-4.7 6.8l7.3 5.7c4.3-4 6.8-9.9 6.8-16.5z"/><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.7-4.7l-7.8-6A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.7 10.7l7.8-6z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.3-5.7c-2 1.4-4.6 2.2-7.9 2.2-6.2 0-11.5-4.2-13.4-9.8l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>
+          Google
+        </button>
+
+      </div>
+      <div class="div"><span>or sign in with email</span></div>
+      <div class="ig"><label>Email</label><input type="email" id="loginEmail" placeholder="you@example.com"/></div>
+      <div class="ig"><label>Password</label><input type="password" id="loginPass" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="fgt" onclick="showForgot()">Forgot password?</div>
+      <div class="err red" id="loginErr"></div>
+      <button class="btn bp" onclick="doLogin()">Sign In →</button>
+
+      <!-- Forgot Password (hidden by default) -->
+      <div id="forgotSection" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <div class="ig"><label>Enter your email to reset</label><input type="email" id="resetEmail" placeholder="you@example.com"/></div>
+        <div class="err" id="resetErr"></div>
+        <button class="btn bp" onclick="sendReset()">Send Reset Email →</button>
+        <button class="btn bs" onclick="hideForgot()">← Back to Login</button>
+      </div>
+    </div>
+
+    <!-- PHONE OTP LOGIN -->
+    <div id="phoneLogin" style="display:none">
+      <!-- Step 1 -->
+      <div class="stp active" id="pStep1">
+        <div class="social-row">
+          <button class="sbtn" onclick="googleLogin()">
+            <svg width="15" height="15" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.8 2.5 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6C12.4 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.5 2.8-2.2 5.2-4.7 6.8l7.3 5.7c4.3-4 6.8-9.9 6.8-16.5z"/><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.7-4.7l-7.8-6A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.7 10.7l7.8-6z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.3-5.7c-2 1.4-4.6 2.2-7.9 2.2-6.2 0-11.5-4.2-13.4-9.8l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>
+            Google
+          </button>
+        </div>
+        <div class="div"><span>or sign in with mobile OTP</span></div>
+        <div class="ig"><label>Mobile Number</label>
+          <div class="pr"><div class="pfx">🇮🇳 +91</div><input type="tel" id="loginPhone" placeholder="98765 43210" maxlength="10" style="flex:1"/></div>
+        </div>
+        
+        <div class="err red" id="pErr1"></div>
+        <button class="btn bp" id="sendOtpBtn" onclick="sendLoginOTP()">Send OTP →</button>
+      </div>
+      <!-- Step 2 -->
+      <div class="stp" id="pStep2">
+        <button class="bk" onclick="showPStep(1)">← Change Number</button>
+        <div class="pdis">OTP sent to <strong id="phoneDisp"></strong></div>
+        <label style="display:block;font-size:.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;text-align:center">Enter 6-digit OTP</label>
+        <div class="otp-row">
+          <input type="tel" maxlength="1" class="lotp" oninput="otpNav(this,0)"/>
+          <input type="tel" maxlength="1" class="lotp" oninput="otpNav(this,1)"/>
+          <input type="tel" maxlength="1" class="lotp" oninput="otpNav(this,2)"/>
+          <input type="tel" maxlength="1" class="lotp" oninput="otpNav(this,3)"/>
+          <input type="tel" maxlength="1" class="lotp" oninput="otpNav(this,4)"/>
+          <input type="tel" maxlength="1" class="lotp" oninput="otpNav(this,5)"/>
+        </div>
+        <div class="err red" id="pErr2"></div>
+        <button class="btn bp" onclick="verifyLoginOTP()">Verify & Sign In →</button>
+        <div class="rsnd">Didn't receive? <span id="rsndBtn" onclick="resendLoginOTP()">Resend OTP</span> <span id="rsndTimer"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ REGISTER SECTION ════ -->
+  <div id="registerSection" style="display:none">
+    <!-- Step 1: Details -->
+    <div class="stp active" id="rStep1">
+      <div class="social-row">
+        <button class="sbtn" onclick="googleLogin()">
+          <svg width="15" height="15" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.8 2.5 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6C12.4 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.5 2.8-2.2 5.2-4.7 6.8l7.3 5.7c4.3-4 6.8-9.9 6.8-16.5z"/><path fill="#FBBC05" d="M10.5 28.7A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.2.7-4.7l-7.8-6A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.7 10.7l7.8-6z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.3-5.7c-2 1.4-4.6 2.2-7.9 2.2-6.2 0-11.5-4.2-13.4-9.8l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>
+          Google
+        </button>
+
+      </div>
+      <div class="div"><span>or create with email</span></div>
+      <div class="ig"><label>Full Name</label><input type="text" id="regName" placeholder="Your full name"/></div>
+      <div class="ig"><label>Email</label><input type="email" id="regEmail" placeholder="you@example.com"/></div>
+      <div class="ig"><label>Mobile Number</label>
+        <div class="pr"><div class="pfx">🇮🇳 +91</div><input type="tel" id="regPhone" placeholder="98765 43210" maxlength="10" style="flex:1"/></div>
+      </div>
+      <div class="ig"><label>Password</label><input type="password" id="regPass" placeholder="Min 8 characters"/></div>
+      <div class="err red" id="regErr1"></div>
+      <button class="btn bp" onclick="regNext()">Continue →</button>
+    </div>
+
+    <!-- Step 2: Verify Mobile OTP -->
+    <div class="stp" id="rStep2">
+      <button class="bk" onclick="showRStep(1)">← Back</button>
+      <div class="pdis">Verify your mobile number<br/><strong id="regPhoneDisp"></strong></div>
+      <div style="display:flex;gap:7px;margin-bottom:12px">
+        <button onclick="sendRegOTP()" id="sendRegOtpBtn" style="flex:1;padding:10px;border-radius:9px;background:linear-gradient(135deg,var(--gold),var(--red));color:#000;font-weight:700;font-size:.82rem;border:none;cursor:pointer;font-family:'DM Sans',sans-serif">Send OTP</button>
+      </div>
+      <div id="regOtpBox" style="display:none">
+        <label style="display:block;font-size:.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;text-align:center">Enter 6-digit OTP</label>
+        <div class="otp-row">
+          <input type="tel" maxlength="1" class="rotp" oninput="otpNav2(this,0)"/>
+          <input type="tel" maxlength="1" class="rotp" oninput="otpNav2(this,1)"/>
+          <input type="tel" maxlength="1" class="rotp" oninput="otpNav2(this,2)"/>
+          <input type="tel" maxlength="1" class="rotp" oninput="otpNav2(this,3)"/>
+          <input type="tel" maxlength="1" class="rotp" oninput="otpNav2(this,4)"/>
+          <input type="tel" maxlength="1" class="rotp" oninput="otpNav2(this,5)"/>
+        </div>
+      </div>
+      <div class="err" id="regErr2"></div>
+      <button class="btn bp" id="createAccBtn" onclick="createAccount()" style="margin-top:8px">Create Account →</button>
+    </div>
+
+    <!-- Step 3: Success -->
+    <div class="stp" id="rStep3" style="text-align:center;padding:20px 0">
+      <div style="font-size:3rem;margin-bottom:14px">🎉</div>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:8px">Account Created!</h3>
+      <p style="color:var(--muted);font-size:.85rem">Taking you to your dashboard…</p>
+      <div style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--gold)">
+        <div style="width:16px;height:16px;border:2px solid var(--gold);border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite"></div>
+        Redirecting…
+      </div>
+      @keyframes spin{to{transform:rotate(360deg)}}
+    </div>
+  </div>
+
+  <div class="alink">Admin? <a href="/admin">Admin Panel →</a></div>
+</div>
 
 <script>
-// ═══════════════════════════════════════
-// UTILITIES
-// ═══════════════════════════════════════
-const RAZORPAY_KEY = 'rzp_live_SfvAyAFnsUhRKX';
-
-const PLANS = [
-  {id:'starter',    name:'Starter',    price:749,  credits:20,  apps:5,   color:'#22d3ee'},
-  {id:'pro',        name:'Pro',        price:2499, credits:80,  apps:25,  color:'#a78bfa'},
-  {id:'enterprise', name:'Enterprise', price:8499, credits:999, apps:999, color:'#f59e0b'},
-];
-
-const SAMPLES = [
-  {icon:'📊',label:'CRM',p:'A CRM with contacts, pipeline and revenue stats'},
-  {icon:'📦',label:'Inventory',p:'Inventory system with products and stock levels'},
-  {icon:'🗂️',label:'Kanban',p:'Kanban board with tasks and columns'},
-  {icon:'👥',label:'HR Portal',p:'HR portal with employee directory and leaves'},
-  {icon:'💰',label:'Finance',p:'Finance dashboard with income and expenses'},
-  {icon:'📋',label:'Tasks',p:'Task manager with priorities and due dates'},
-];
-
-const SYSTEM_PROMPT = `You are an expert developer. Generate a React app.
-Return ONLY valid JSON (no markdown):
-{"appName":"string","description":"string","code":"string","features":["string"]}
-code must be self-contained React + Tailwind CSS.
-export default function App() { ... }
-Make it production-quality and beautiful.`;
-
-function genId(){ return Math.random().toString(36).slice(2,10); }
-function fmtN(n){ return Number(n).toLocaleString('en-IN'); }
-function nowStr(){ return new Date().toLocaleDateString('en-IN',{month:'short',day:'numeric',year:'numeric'}); }
-
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 3000);
-}
-
-// ═══════════════════════════════════════
-// USER STORAGE
-// ═══════════════════════════════════════
-function getUsers(){
-  try{
-    const d = localStorage.getItem('pp_users');
-    const users = d ? JSON.parse(d) : [];
-    if(!users.find(u=>u.email==='admin@paype.co.in')){
-      users.unshift({id:'admin-1',name:'Admin',email:'admin@paype.co.in',password:'admin@2025',role:'admin',plan:'enterprise',credits:999999,joined:'Apr 2025',apps:[]});
-      localStorage.setItem('pp_users', JSON.stringify(users));
-    }
-    return users;
-  }catch(e){ return []; }
-}
-
-function saveUsers(users){
-  try{ localStorage.setItem('pp_users', JSON.stringify(users)); }catch(e){}
-}
-
-function getSession(){
-  try{ return JSON.parse(localStorage.getItem('pp_session')||'null'); }catch(e){ return null; }
-}
-
-function saveSession(user){
-  try{ localStorage.setItem('pp_session', JSON.stringify(user)); }catch(e){}
-}
-
-function clearSession(){
-  try{ localStorage.removeItem('pp_session'); }catch(e){}
-}
-
-// ═══════════════════════════════════════
-// APP STATE
-// ═══════════════════════════════════════
-let STATE = {
-  user: getSession(),
-  page: 'builder',
-  prompt: '',
-  loading: false,
-  result: null,
-  error: null,
-  tab: 'preview',
-  authMode: 'login',
-  authStep: 1,
-  authForm: {name:'',email:'',phone:'',password:'',plan:'starter'},
-  authErr: '',
-  authLoading: false,
-  payModal: null,
-  pricingSuccess: false,
+// ── FIREBASE CONFIG ───────────────────────────────────
+const FB_CONFIG = {
+  apiKey: "AIzaSyAQ1Cchvt21GIVJIYHXBjBX7nI52tT6Zdc",
+  authDomain: "paype-technologies.firebaseapp.com",
+  projectId: "paype-technologies",
+  storageBucket: "paype-technologies.appspot.com",
+  messagingSenderId: "4797605407",
+  appId: "1:4797605407:web:9f4fd2564939bacc8e172a"
 };
 
-function selectPlan(el){
-  document.querySelectorAll('.plan-opt').forEach(e=>e.classList.remove('sel'));
-  el.classList.add('sel');
+// ── LOAD FIREBASE DYNAMICALLY ─────────────────────────
+var auth = null;
+
+function loadScript(src, cb) {
+  var s = document.createElement('script');
+  s.src = src;
+  s.onload = cb;
+  s.onerror = function(){ console.error('Failed to load: ' + src); };
+  document.head.appendChild(s);
 }
 
-function setState(updates){
-  STATE = {...STATE, ...updates};
-  // Only update error message if on auth page — don't re-render whole auth
-  if(!STATE.user && updates.authErr !== undefined){
-    const errEl = document.getElementById('auth-err');
-    if(errEl){ errEl.textContent = updates.authErr; return; }
-  }
-  render();
-}
+loadScript('https://cdn.jsdelivr.net/npm/firebase@9.22.2/firebase-app-compat.min.js', function() {
+  loadScript('https://cdn.jsdelivr.net/npm/firebase@9.22.2/firebase-auth-compat.min.js', function() {
+    // Firebase loaded — now initialize
+    if (!firebase.apps.length) firebase.initializeApp(FB_CONFIG);
+    auth = firebase.auth();
 
-// ═══════════════════════════════════════
-// AUTH FUNCTIONS
-// ═══════════════════════════════════════
-function doLogin(){
-  // Read directly from DOM inputs
-  const email    = document.getElementById('login-email')?.value?.trim() || '';
-  const password = document.getElementById('login-pass')?.value || '';
-  if(!email || !password){ setState({authErr:'Enter email and password'}); return; }
-  const users = getUsers();
-  const user = users.find(u => u.email.toLowerCase()===email.toLowerCase() && u.password===password);
-  if(!user){ setState({authErr:'Wrong email or password. Please try again.'}); return; }
-  saveSession(user);
-  STATE.user = user;
-  STATE.page = 'builder';
-  STATE.authErr = '';
-  render();
-  showToast('Welcome back, ' + user.name + '! 👋');
-}
-
-function doSignup(){
-  // Read directly from DOM inputs
-  const name     = document.getElementById('sig-name')?.value?.trim() || '';
-  const email    = document.getElementById('sig-email')?.value?.trim() || '';
-  const phone    = document.getElementById('sig-phone')?.value?.trim() || '';
-  const password = document.getElementById('sig-pass')?.value || '';
-  const plan     = document.querySelector('.plan-opt.sel')?.dataset?.plan || 'starter';
-
-  if(!name||!email||!password){ setState({authErr:'Name, email and password required'}); return; }
-  if(password.length < 6){ setState({authErr:'Password must be at least 6 characters'}); return; }
-  const users = getUsers();
-  if(users.find(u=>u.email.toLowerCase()===email.toLowerCase())){ setState({authErr:'Email already registered. Please sign in.'}); return; }
-  const p = PLANS.find(pl=>pl.id===plan)||PLANS[0];
-  const newUser = {
-    id: genId(), name, email, phone,
-    password, role:'user', plan:p.id,
-    credits: p.credits, joined: nowStr(), apps:[]
-  };
-  users.push(newUser);
-  saveUsers(users);
-  saveSession(newUser);
-  STATE.user = newUser;
-  STATE.page = 'builder';
-  STATE.authErr = '';
-  render();
-  showToast('Account created! Welcome to PayPe 🎉');
-}
-
-function doLogout(){
-  clearSession();
-  setState({user:null, page:'builder', result:null, prompt:''});
-}
-
-// ═══════════════════════════════════════
-// BUILD FUNCTION
-// ═══════════════════════════════════════
-async function buildApp(promptText){
-  const p = promptText || STATE.prompt;
-  if(!p.trim()) return;
-  if(!STATE.user){ setState({authErr:'Please sign in first'}); return; }
-  if(STATE.user.credits <= 0){ showToast('No credits! Please upgrade your plan.'); setState({page:'pricing'}); return; }
-
-  setState({loading:true, error:null, result:null});
-
-  try{
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:SYSTEM_PROMPT,
-        messages:[{role:'user',content:`Build: ${p}`}]
-      })
-    });
-    const data = await res.json();
-    const text = (data.content||[]).map(i=>i.text||'').join('');
-    const clean = text.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(clean);
-
-    // Deduct credit
-    const users = getUsers();
-    const idx = users.findIndex(u=>u.id===STATE.user.id);
-    if(idx>=0){
-      users[idx].credits = Math.max(0, users[idx].credits - 1);
-      saveUsers(users);
-      saveSession(users[idx]);
-      setState({loading:false, result:parsed, tab:'preview', user:users[idx]});
-    } else {
-      setState({loading:false, result:parsed, tab:'preview'});
-    }
-    showToast('App built successfully! ⚡');
-  }catch(e){
-    setState({loading:false, error:'Build failed. Please try again.'});
-  }
-}
-
-function saveApp(){
-  if(!STATE.result || !STATE.user) return;
-  const plan = PLANS.find(p=>p.id===STATE.user.plan)||PLANS[0];
-  if(STATE.user.apps.length >= plan.apps && plan.apps!==999){
-    showToast('App limit reached! Upgrade to save more.'); return;
-  }
-  const icons = ['🚀','⚡','🎯','📱','🛠️','💡','🔮','🌟','💎','🔥'];
-  const app = {
-    id:genId(),
-    name:STATE.result.appName,
-    description:STATE.result.description,
-    code:STATE.result.code,
-    features:STATE.result.features,
-    icon:icons[Math.floor(Math.random()*icons.length)],
-    savedAt:nowStr()
-  };
-  const users = getUsers();
-  const idx = users.findIndex(u=>u.id===STATE.user.id);
-  if(idx>=0){
-    users[idx].apps = [...(users[idx].apps||[]), app];
-    saveUsers(users);
-    saveSession(users[idx]);
-    setState({user:users[idx]});
-  }
-  showToast('App saved! 💾');
-}
-
-function exportApp(){
-  if(!STATE.result) return;
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><script src="https://cdn.tailwindcss.com"><\/script><script src="https://unpkg.com/react@18/umd/react.development.js"><\/script><script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script><script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script><style>body{margin:0}<\/style><\/head><body><div id="root"></div><script type="text/babel">${STATE.result.code} ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));<\/script><\/body><\/html>`;
-  const a = Object.assign(document.createElement('a'),{
-    href: URL.createObjectURL(new Blob([html],{type:'text/html'})),
-    download: STATE.result.appName.replace(/\s+/g,'-').toLowerCase()+'.html'
-  });
-  a.click();
-  showToast('App exported! 🚀');
-}
-
-// ═══════════════════════════════════════
-// PAYMENT
-// ═══════════════════════════════════════
-function openPayment(plan){
-  setState({payModal:plan});
-}
-
-function processPayment(plan){
-  setState({payModal:null});
-
-  if(!window.Razorpay){
-    const s = document.createElement('script');
-    s.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    s.onload = () => launchRazorpay(plan);
-    s.onerror = () => showToast('Payment not available. Check internet.');
-    document.head.appendChild(s);
-    return;
-  }
-  launchRazorpay(plan);
-}
-
-function launchRazorpay(plan){
-  const user = STATE.user;
-  const options = {
-    key: RAZORPAY_KEY,
-    amount: plan.price * 100,
-    currency: 'INR',
-    name: 'PayPe Technologies',
-    description: plan.name + ' Plan',
-    prefill: { name:user.name, email:user.email, contact:user.phone||'' },
-    theme: { color:'#f59e0b' },
-    handler: function(response){
-      // Update user plan
-      const users = getUsers();
-      const idx = users.findIndex(u=>u.id===user.id);
-      if(idx>=0){
-        users[idx].plan = plan.id;
-        users[idx].credits = (users[idx].credits||0) + plan.credits;
-        saveUsers(users);
-        saveSession(users[idx]);
-        setState({user:users[idx], pricingSuccess:true});
-        setTimeout(()=>setState({pricingSuccess:false}),3000);
+    // Check if already logged in via Firebase (Google/Email)
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        // Firebase user logged in - check plan
+        var plan = sessionStorage.getItem('paype_plan');
+        if (plan) {
+          window.location.href = '/app';
+        } else {
+          showPlanScreen(user);
+        }
       }
-      showToast('Payment successful! Credits added 🎉');
-    },
-    modal:{ ondismiss: function(){ showToast('Payment cancelled.'); } }
-  };
-  try{
-    new window.Razorpay(options).open();
-  }catch(e){
-    showToast('Payment error. Please refresh and try again.');
-  }
-}
-
-// ═══════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════
-function render(){
-  const root = document.getElementById('root');
-  if(!root) return;
-
-  if(!STATE.user){
-    root.innerHTML = renderAuth();
-    attachAuthEvents();
-    return;
-  }
-
-  root.innerHTML = renderApp();
-  attachAppEvents();
-}
-
-// ── AUTH HTML ────────────────────────────────────────
-function renderAuth(){
-  const f = STATE.authForm;
-  const isLogin = STATE.authMode === 'login';
-
-  return `
-  <div class="auth-wrap">
-    <div class="auth-box">
-      <div class="logo">
-        <div class="logo-icon">P</div>
-        <span style="color:#fff">PayPe</span>
-        <span style="color:#f59e0b">Technologies</span>
-      </div>
-      <p class="auth-sub">AI-Powered App Builder Platform</p>
-
-      <div class="auth-tabs">
-        <button class="auth-tab ${isLogin?'active':''}" onclick="switchAuthMode('login')">Sign In</button>
-        <button class="auth-tab ${!isLogin?'active':''}" onclick="switchAuthMode('signup')">Create Account</button>
-      </div>
-
-      ${isLogin ? `
-        <div class="field">
-          <label>Email Address</label>
-          <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"/>
-        </div>
-        <div class="field">
-          <label>Password</label>
-          <input type="password" id="login-pass" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
-        </div>
-        <div class="err" id="auth-err">${STATE.authErr||''}</div>
-        <button class="btn-gold" onclick="doLogin()">Sign In →</button>
-        <p style="text-align:center;margin-top:12px;font-size:.8rem;color:#6b6b8a">
-          No account? <span style="color:#f59e0b;cursor:pointer" onclick="switchAuthMode('signup')">Create one free</span>
-        </p>
-        <p style="text-align:center;margin-top:6px;font-size:.72rem;color:#555">
-          Demo: admin@paype.co.in / admin@2025
-        </p>
-      ` : `
-        <div class="field">
-          <label>Full Name</label>
-          <input type="text" id="sig-name" placeholder="Your name" autocomplete="name"/>
-        </div>
-        <div class="field">
-          <label>Email Address</label>
-          <input type="email" id="sig-email" placeholder="you@example.com" autocomplete="email"/>
-        </div>
-        <div class="field">
-          <label>Mobile (optional)</label>
-          <input type="tel" id="sig-phone" placeholder="10-digit number" maxlength="10"/>
-        </div>
-        <div class="field">
-          <label>Password</label>
-          <input type="password" id="sig-pass" placeholder="Min 6 characters" autocomplete="new-password"/>
-        </div>
-        <div style="margin-bottom:14px">
-          <label style="display:block;font-size:.72rem;color:#6b6b8a;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Choose Plan</label>
-          <div class="plan-grid">
-            ${PLANS.map((p,i)=>`
-              <div class="plan-opt ${i===0?'sel':''}" data-plan="${p.id}" onclick="selectPlan(this)">
-                <div class="plan-name">${p.name}</div>
-                <div class="plan-price">₹${fmtN(p.price)}</div>
-                <div style="font-size:.65rem;color:#6b6b8a">/mo</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-        <div class="err" id="auth-err">${STATE.authErr||''}</div>
-        <button class="btn-gold" onclick="doSignup()">Create Account & Start Building →</button>
-        <p style="text-align:center;margin-top:10px;font-size:.8rem;color:#6b6b8a">
-          Have account? <span style="color:#f59e0b;cursor:pointer" onclick="switchAuthMode('login')">Sign in</span>
-        </p>
-      `}
-    </div>
-  </div>`;
-}
-
-// ── APP HTML ─────────────────────────────────────────
-function renderApp(){
-  const u = STATE.user;
-  const plan = PLANS.find(p=>p.id===u.plan)||PLANS[0];
-
-  return `
-  ${STATE.payModal ? renderPayModal() : ''}
-  <div class="shell">
-    <header>
-      <div class="h-logo">
-        <div class="h-logo-icon">P</div>
-        <span style="color:#fff;font-family:'Playfair Display',serif">PayPe</span>
-        <span style="color:#f59e0b;font-family:'Playfair Display',serif"> Tech</span>
-      </div>
-      <nav>
-        <button class="nav-btn ${STATE.page==='builder'?'active':''}" onclick="gotoPage('builder')">⚡ Build</button>
-        <button class="nav-btn ${STATE.page==='apps'?'active':''}" onclick="gotoPage('apps')">📂 Apps</button>
-        <button class="nav-btn ${STATE.page==='pricing'?'active':''}" onclick="gotoPage('pricing')">💳 Pricing</button>
-        <button class="nav-btn ${STATE.page==='settings'?'active':''}" onclick="gotoPage('settings')">⚙</button>
-      </nav>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:.75rem;color:#9ca3af;display:none" id="uname">${u.name}</span>
-        <div class="avatar">${u.name[0]}</div>
-      </div>
-    </header>
-    <main>
-      ${STATE.page==='builder' ? renderBuilder() : ''}
-      ${STATE.page==='apps'    ? renderApps()    : ''}
-      ${STATE.page==='pricing' ? renderPricing() : ''}
-      ${STATE.page==='settings'? renderSettings(): ''}
-    </main>
-  </div>`;
-}
-
-function renderPayModal(){
-  const p = STATE.payModal;
-  return `
-  <div class="modal-bg" onclick="if(event.target===this)setState({payModal:null})">
-    <div class="modal-box">
-      <div style="font-size:2.5rem;margin-bottom:12px">💳</div>
-      <h2 style="color:#fff;font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:6px">${p.name} Plan</h2>
-      <p style="color:${p.color};font-size:2rem;font-weight:900;font-family:'Playfair Display',serif;margin-bottom:4px">₹${fmtN(p.price)}<span style="font-size:1rem;color:#6b6b8a;font-weight:400">/mo</span></p>
-      <p style="color:#6b6b8a;font-size:.82rem;margin-bottom:20px">${p.credits===999?'Unlimited':p.credits} builds · ${p.apps===999?'Unlimited':p.apps} apps</p>
-      <button class="btn-gold" onclick="processPayment(${JSON.stringify(p).replace(/"/g,'&quot;')})">Pay ₹${fmtN(p.price)} →</button>
-      <button class="btn-ghost" onclick="setState({payModal:null})">Cancel</button>
-      <p style="color:#6b6b8a;font-size:.7rem;margin-top:12px">🔒 Razorpay · UPI · Cards · Net Banking</p>
-    </div>
-  </div>`;
-}
-
-function renderBuilder(){
-  const u = STATE.user;
-  const plan = PLANS.find(p=>p.id===u.plan)||PLANS[0];
-  const credPct = u.credits===999999?100:Math.min(100,(u.credits/plan.credits)*100);
-
-  return `
-  <div class="builder" style="height:calc(100vh - 58px)">
-    <div class="credits-bar">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span>Credits: <strong style="color:#f59e0b">${u.credits===999999?'∞':u.credits}</strong></span>
-        <span class="credit-pill">${plan.name.toUpperCase()}</span>
-      </div>
-      <div style="width:90px;height:4px;background:#1e1e30;border-radius:4px;overflow:hidden">
-        <div style="height:100%;width:${credPct}%;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:4px"></div>
-      </div>
-    </div>
-    <div class="prompt-area">
-      <div class="prompt-box">
-        <span class="prompt-icon">✦</span>
-        <textarea class="prompt-input" id="prompt-input" rows="2" placeholder="Describe the app you want to build in plain English…">${STATE.prompt}</textarea>
-        <button class="build-btn" id="build-btn" ${STATE.loading||!STATE.prompt.trim()?'disabled':''} onclick="buildApp()">
-          ${STATE.loading?'…':'Build →'}
-        </button>
-      </div>
-      <div class="chips">
-        ${SAMPLES.map(s=>`<button class="chip" onclick="buildApp('${s.p}')">${s.icon} ${s.label}</button>`).join('')}
-      </div>
-    </div>
-    <div class="output">
-      ${!STATE.result&&!STATE.loading&&!STATE.error?`
-        <div class="empty-state">
-          <div class="empty-icon">⚡</div>
-          <div>
-            <h2 style="color:#fff;font-size:1.1rem;font-family:'Playfair Display',serif;margin-bottom:6px">Describe any app — we build it</h2>
-            <p style="color:#6b6b8a;font-size:.85rem">CRMs, dashboards, portals, trackers — built by AI in seconds</p>
-          </div>
-        </div>` : ''}
-      ${STATE.loading?`
-        <div class="loading-state">
-          <div class="spinner"></div>
-          <p style="color:#fff;font-weight:600">Building your app…</p>
-          <p style="color:#6b6b8a;font-size:.82rem">AI agents are designing & coding</p>
-        </div>` : ''}
-      ${STATE.error?`
-        <div class="empty-state">
-          <p style="color:#ef4444">${STATE.error}</p>
-          <button class="btn-ghost" style="width:auto;padding:8px 20px" onclick="buildApp()">Try Again</button>
-        </div>` : ''}
-      ${STATE.result&&!STATE.loading?`
-        <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
-          <div class="result-header">
-            <div class="result-title">
-              <div class="result-dot"></div>
-              <span class="result-name">${STATE.result.appName}</span>
-            </div>
-            <div class="result-actions">
-              <button class="act-btn" style="border-color:#f59e0b40;color:#f59e0b;background:#f59e0b10" onclick="saveApp()">💾 Save</button>
-              <button class="act-btn" style="border-color:#22c55e40;color:#22c55e;background:#22c55e10" onclick="exportApp()">🚀 Export</button>
-              <div class="tab-group">
-                <button class="tab-btn ${STATE.tab==='preview'?'active':''}" onclick="setState({tab:'preview'})">Preview</button>
-                <button class="tab-btn ${STATE.tab==='code'?'active':''}" onclick="setState({tab:'code'})">Code</button>
-                <button class="tab-btn ${STATE.tab==='features'?'active':''}" onclick="setState({tab:'features'})">Features</button>
-              </div>
-            </div>
-          </div>
-          <div style="flex:1;overflow:hidden">
-            ${STATE.tab==='preview'?`
-              <div class="preview-wrap" style="height:100%">
-                <div class="preview-frame">
-                  <iframe srcdoc="${encodePreview(STATE.result.code)}" style="width:100%;height:100%;border:none" sandbox="allow-scripts"></iframe>
-                </div>
-              </div>` : ''}
-            ${STATE.tab==='code'?`
-              <div class="code-wrap">
-                <pre class="code-block">${escHtml(STATE.result.code)}</pre>
-              </div>` : ''}
-            ${STATE.tab==='features'?`
-              <div class="feat-wrap">
-                <h3 style="color:#fff;font-family:'Playfair Display',serif;margin-bottom:14px">✦ Built Features</h3>
-                ${(STATE.result.features||[]).map(f=>`
-                  <div class="feat-item">
-                    <span style="color:#f59e0b;flex-shrink:0">✓</span>
-                    <span style="color:#9ca3af;font-size:.88rem">${f}</span>
-                  </div>`).join('')}
-              </div>` : ''}
-          </div>
-        </div>` : ''}
-    </div>
-  </div>`;
-}
-
-function renderApps(){
-  const apps = STATE.user.apps||[];
-  if(!apps.length) return `
-    <div class="empty-state" style="min-height:60vh">
-      <div style="font-size:3rem">📂</div>
-      <h2 style="color:#fff;font-family:'Playfair Display',serif">No saved apps yet</h2>
-      <p style="color:#6b6b8a;font-size:.88rem">Build an app and save it to see it here</p>
-      <button class="btn-gold" style="width:auto;padding:10px 24px" onclick="gotoPage('builder')">Start Building →</button>
-    </div>`;
-  return `
-    <div style="padding:20px">
-      <h1 style="color:#fff;font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:16px">My Apps (${apps.length})</h1>
-      <div class="apps-grid">
-        ${apps.map(app=>`
-          <div class="app-card">
-            <div class="app-thumb">${app.icon}</div>
-            <div style="padding:12px">
-              <h3 style="color:#fff;font-size:.92rem;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${app.name}</h3>
-              <p style="color:#6b6b8a;font-size:.75rem;margin-bottom:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${app.description}</p>
-              <div style="display:flex;gap:7px">
-                <button class="act-btn" style="flex:1;border-color:#f59e0b40;color:#f59e0b;background:#f59e0b10;text-align:center;padding:6px" onclick="loadApp('${app.id}')">Open</button>
-                <button class="act-btn" style="border-color:#ef444440;color:#ef4444;background:#ef444410;padding:6px 10px" onclick="deleteApp('${app.id}')">Delete</button>
-              </div>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>`;
-}
-
-function renderPricing(){
-  const u = STATE.user;
-  return `
-    <div class="pricing-page">
-      <div style="text-align:center;margin-bottom:28px">
-        <h1 style="color:#fff;font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:8px">Simple Pricing</h1>
-        <p style="color:#6b6b8a">All plans billed in ₹ INR · Cancel anytime</p>
-      </div>
-      ${STATE.pricingSuccess?`<div style="margin-bottom:16px;padding:14px;border-radius:10px;border:1px solid #22c55e40;background:#22c55e10;color:#22c55e;text-align:center;font-weight:600">✓ Plan upgraded! Credits added to your account.</div>`:''}
-      <div class="plan-cards">
-        ${PLANS.map(p=>{
-          const isCurrent = u.plan===p.id;
-          return `
-          <div class="plan-card ${isCurrent?'current':''}">
-            ${isCurrent?`<div style="position:absolute;top:12px;right:12px;font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:100px;background:${p.color}25;color:${p.color}">CURRENT</div>`:''}
-            <h3 style="color:#fff;font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:6px">${p.name}</h3>
-            <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:${p.color};margin:10px 0 4px">
-              ₹${fmtN(p.price)}<span style="font-size:.82rem;color:#6b6b8a;font-family:'DM Sans',sans-serif;font-weight:400">/mo</span>
-            </div>
-            <ul style="list-style:none;padding:0;margin:14px 0 18px">
-              ${[`${p.credits===999?'Unlimited':p.credits} AI builds/mo`,`${p.apps===999?'Unlimited':p.apps} saved apps`,'Code export','GST invoice'].map(f=>`
-                <li style="display:flex;align-items:center;gap:8px;font-size:.83rem;color:#9ca3af;padding:4px 0">
-                  <span style="color:${p.color}">✓</span>${f}
-                </li>`).join('')}
-            </ul>
-            <button onclick="${isCurrent?'':``openPayment(${JSON.stringify(p).replace(/"/g,"'")})``}"
-              style="width:100%;padding:11px;border-radius:10px;font-weight:700;font-size:.88rem;border:none;background:${isCurrent?p.color+'20':`linear-gradient(135deg,${p.color},${p.color}bb)`};color:${isCurrent?p.color:'#000'};cursor:${isCurrent?'default':'pointer'}">
-              ${isCurrent?'✓ Current Plan':`Upgrade to ${p.name} →`}
-            </button>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-}
-
-function renderSettings(){
-  const u = STATE.user;
-  const plan = PLANS.find(p=>p.id===u.plan)||PLANS[0];
-  return `
-    <div class="settings-page">
-      <h1 style="color:#fff;font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:20px">Account Settings</h1>
-      <div class="settings-card">
-        <h2 style="color:#fff;font-size:.95rem;margin-bottom:12px">Profile</h2>
-        ${[['Name',u.name],['Email',u.email],['Phone',u.phone||'Not set'],['Member Since',u.joined]].map(([k,v])=>`
-          <div class="setting-row">
-            <span style="color:#6b6b8a;font-size:.85rem">${k}</span>
-            <span style="color:#fff;font-size:.85rem;font-weight:500">${v}</span>
-          </div>`).join('')}
-      </div>
-      <div class="settings-card" style="border-color:${plan.color}40;background:${plan.color}08">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <h2 style="color:#fff;font-size:.95rem">Current Plan</h2>
-          <span style="background:${plan.color}20;color:${plan.color};border:1px solid ${plan.color}40;border-radius:100px;padding:3px 10px;font-size:.72rem;font-weight:700">${plan.name.toUpperCase()}</span>
-        </div>
-        <p style="color:#6b6b8a;font-size:.83rem">Credits: <strong style="color:${plan.color}">${u.credits===999999?'Unlimited':u.credits} / ${plan.credits===999?'Unlimited':plan.credits}</strong></p>
-        <p style="color:#6b6b8a;font-size:.83rem;margin-top:4px">Apps saved: <strong style="color:${plan.color}">${(u.apps||[]).length} / ${plan.apps===999?'Unlimited':plan.apps}</strong></p>
-      </div>
-      <button onclick="doLogout()" style="width:100%;padding:13px;border-radius:10px;border:1px solid #ef444430;color:#ef4444;background:#ef444408;font-size:.9rem;font-weight:600">
-        Sign Out
-      </button>
-    </div>`;
-}
-
-// ═══════════════════════════════════════
-// HELPER FUNCTIONS
-// ═══════════════════════════════════════
-function escHtml(s){
-  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function encodePreview(code){
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/><script src="https://cdn.tailwindcss.com"><\/script><script src="https://unpkg.com/react@18/umd/react.development.js"><\/script><script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script><script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script><style>body{margin:0;background:#f8fafc;font-family:system-ui,sans-serif}<\/style><\/head><body><div id="root"></div><script type="text/babel">${code} ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));<\/script><\/body><\/html>`;
-  return html.replace(/"/g,'&quot;');
-}
-
-function switchAuthMode(mode){
-  setState({authMode:mode, authStep:1, authErr:''});
-}
-
-function updateForm(key, val){
-  STATE.authForm = {...STATE.authForm, [key]:val};
-  // Don't re-render on every keystroke — just update state
-  STATE.authErr = '';
-}
-
-function gotoPage(page){
-  setState({page});
-}
-
-function loadApp(id){
-  const app = (STATE.user.apps||[]).find(a=>a.id===id);
-  if(app) setState({page:'builder', result:{appName:app.name,description:app.description,code:app.code,features:app.features}, tab:'preview'});
-}
-
-function deleteApp(id){
-  const users = getUsers();
-  const idx = users.findIndex(u=>u.id===STATE.user.id);
-  if(idx>=0){
-    users[idx].apps = (users[idx].apps||[]).filter(a=>a.id!==id);
-    saveUsers(users);
-    saveSession(users[idx]);
-    setState({user:users[idx]});
-  }
-  showToast('App deleted');
-}
-
-function openPayment(plan){
-  STATE.payModal = plan;
-  render();
-}
-
-// ═══════════════════════════════════════
-// EVENT ATTACHMENT
-// ═══════════════════════════════════════
-function attachAuthEvents(){
-  // Input events attached inline via oninput
-}
-
-function attachAppEvents(){
-  const pi = document.getElementById('prompt-input');
-  if(pi){
-    pi.addEventListener('input', e=>{
-      STATE.prompt = e.target.value;
-      const btn = document.getElementById('build-btn');
-      if(btn) btn.disabled = STATE.loading || !STATE.prompt.trim();
     });
-    pi.addEventListener('keydown', e=>{
-      if(e.key==='Enter' && (e.metaKey||e.ctrlKey)) buildApp();
-    });
-  }
+
+  });
+});
+
+// ── THEME ─────────────────────────────────────────────
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('paype_theme', t);
+  document.querySelectorAll('.tbtn').forEach(function(b) { b.classList.remove('active'); });
+  var map = {light:0, dark:1, system:2};
+  document.querySelectorAll('.tbtn')[map[t]].classList.add('active');
+}
+setTheme(localStorage.getItem('paype_theme') || 'dark');
+
+// ── MAIN TAB SWITCH (Login / Register) ───────────────
+function switchMainTab(t) {
+  document.getElementById('loginSection').style.display = t==='login' ? 'block' : 'none';
+  document.getElementById('registerSection').style.display = t==='register' ? 'block' : 'none';
+  document.getElementById('tabLogin').classList.toggle('active', t==='login');
+  document.getElementById('tabRegister').classList.toggle('active', t==='register');
+  document.getElementById('cardTitle').textContent = t==='login' ? 'Welcome Back' : 'Create Account';
+  document.getElementById('cardSub').textContent = t==='login' ? 'Sign in to your account' : 'Join PayPe Technologies today';
 }
 
-// ═══════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════
-render();
+// ── METHOD TAB SWITCH (Email / Phone) ────────────────
+function switchMethod(m) {
+  document.getElementById('emailLogin').style.display = m==='email' ? 'block' : 'none';
+  document.getElementById('phoneLogin').style.display = m==='phone' ? 'block' : 'none';
+  document.getElementById('mTabEmail').classList.toggle('active', m==='email');
+  document.getElementById('mTabPhone').classList.toggle('active', m==='phone');
+}
+
+// ── STEP HELPERS ──────────────────────────────────────
+function showPStep(n) {
+  document.querySelectorAll('#phoneLogin .stp').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('pStep'+n).classList.add('active');
+}
+function showRStep(n) {
+  document.querySelectorAll('#registerSection .stp').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('rStep'+n).classList.add('active');
+}
+
+// ── FORGOT PASSWORD ───────────────────────────────────
+function showForgot() {
+  document.getElementById('forgotSection').style.display = 'block';
+}
+function hideForgot() {
+  document.getElementById('forgotSection').style.display = 'none';
+}
+function sendReset() {
+  var email = document.getElementById('resetEmail').value.trim();
+  var err = document.getElementById('resetErr');
+  if (!email) { err.className='err red'; err.textContent='Enter your email.'; return; }
+  auth.sendPasswordResetEmail(email)
+    .then(function() { err.className='err grn'; err.textContent='✓ Reset email sent! Check your inbox.'; })
+    .catch(function() { err.className='err red'; err.textContent='Email not found.'; });
+}
+
+// ── EMAIL LOGIN ───────────────────────────────────────
+function doLogin() {
+  if (!auth) { alert('Please wait, loading...'); return; }
+  var email = document.getElementById('loginEmail').value.trim();
+  var pass = document.getElementById('loginPass').value;
+  var err = document.getElementById('loginErr');
+  if (!email || !pass) { err.textContent='Enter email and password.'; return; }
+  err.textContent='Signing in…';
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(function(result) { handleLoginSuccess(result ? result.user : auth.currentUser); })
+    .catch(function(e) {
+      if(e.code==='auth/user-not-found') err.textContent='No account found. Please register first.';
+      else if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') err.textContent='Incorrect password.';
+      else if(e.code==='auth/invalid-email') err.textContent='Invalid email address.';
+      else err.textContent='Login failed: '+e.message;
+    });
+}
+
+// ── GOOGLE LOGIN ──────────────────────────────────────
+function googleLogin() {
+  if (!auth) { alert('Please wait, loading...'); return; }
+  var provider = new firebase.auth.GoogleAuthProvider();
+  // Use redirect (works on all browsers/mobile without popup blockers)
+  auth.signInWithPopup(provider)
+    .then(function(result){
+      if(result.user) handleLoginSuccess(result.user);
+    })
+    .catch(function(e){
+      if(e.code==="auth/popup-blocked"){
+        auth.signInWithRedirect(provider);
+      } else if(e.code!=="auth/popup-closed-by-user"){
+        alert(e.message);
+      }
+    });
+}
+
+
+
+// ── PHONE OTP LOGIN (Firebase Phone Auth) ────────────
+var loginConfirmResult = null, otpTimer = null;
+// ── PHONE OTP LOGIN via Cloudflare Worker (no Firebase billing needed) ──
+var loginOtpPhone = '';
+
+function sendLoginOTP() {
+  var phone = document.getElementById('loginPhone').value.trim();
+  var err = document.getElementById('pErr1');
+  if (!phone || phone.length!==10 || !/^[6-9]/.test(phone)) {
+    err.textContent='Enter a valid 10-digit Indian mobile number.'; return;
+  }
+  err.textContent='';
+  var btn = document.getElementById('sendOtpBtn');
+  btn.textContent='Sending…'; btn.disabled=true;
+  loginOtpPhone = phone;
+
+  fetch('https://msg91-proxy.doctorramesh5.workers.dev/?action=send&phone='+phone)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.textContent='Resend OTP'; btn.disabled=false;
+      if(d.success){
+        document.getElementById('phoneDisp').textContent='+91 '+phone;
+        showPStep(2);
+        startTimer();
+      } else {
+        err.textContent='Failed to send OTP. Try again.';
+      }
+    })
+    .catch(function(){
+      btn.textContent='Send OTP →'; btn.disabled=false;
+      err.textContent='Network error. Try again.';
+    });
+}
+
+function verifyLoginOTP() {
+  var digits = Array.from(document.querySelectorAll('.lotp')).map(function(i){return i.value;}).join('');
+  var err = document.getElementById('pErr2');
+  if(digits.length!==6){err.textContent='Enter all 6 digits.';return;}
+  if(!loginOtpPhone){err.textContent='Session expired. Please resend OTP.';return;}
+  var btn = document.querySelector('#pStep2 .btn');
+  btn.textContent='Verifying…'; btn.disabled=true;
+
+  fetch('https://msg91-proxy.doctorramesh5.workers.dev/?action=verify&phone='+loginOtpPhone+'&otp='+digits)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.textContent='Verify & Sign In →'; btn.disabled=false;
+      if(d.success){
+        // OTP verified — sign in anonymously or create a custom token session
+        // Store phone in session and proceed to plan selection
+        sessionStorage.setItem('paype_phone', loginOtpPhone);
+        sessionStorage.setItem('paype_login_method', 'phone');
+        // Create a fake user object for plan screen
+        var fakeUser = {
+          displayName: '+91 ' + loginOtpPhone,
+          email: null,
+          phoneNumber: '+91' + loginOtpPhone
+        };
+        handleLoginSuccess(fakeUser);
+      } else {
+        err.textContent = d.message === 'OTP expired or not found'
+          ? 'OTP expired. Please resend.'
+          : 'Wrong OTP. Please check SMS and try again.';
+      }
+    })
+    .catch(function(){
+      btn.textContent='Verify & Sign In →'; btn.disabled=false;
+      err.textContent='Network error. Try again.';
+    });
+}
+
+function resendLoginOTP(){
+  document.querySelectorAll('.lotp').forEach(function(i){i.value='';});
+  document.getElementById('pErr2').textContent='';
+  showPStep(1);
+  setTimeout(sendLoginOTP, 300);
+}
+function startTimer(){
+  var s=30, btn=document.getElementById('rsndBtn'), timer=document.getElementById('rsndTimer');
+  btn.style.pointerEvents='none'; btn.style.opacity='.4';
+  clearInterval(otpTimer);
+  otpTimer=setInterval(function(){
+    timer.textContent='('+s+'s)'; s--;
+    if(s<0){clearInterval(otpTimer);btn.style.pointerEvents='auto';btn.style.opacity='1';timer.textContent='';}
+  },1000);
+}
+function otpNav(el,idx){if(el.value&&idx<5)document.querySelectorAll('.lotp')[idx+1].focus();}
+
+// ── REGISTER ─────────────────────────────────────────
+var regPhone = '';
+function regNext() {
+  var name = document.getElementById('regName').value.trim();
+  var email = document.getElementById('regEmail').value.trim();
+  var phone = document.getElementById('regPhone').value.trim();
+  var pass = document.getElementById('regPass').value;
+  var err = document.getElementById('regErr1');
+  if(!name){err.textContent='Enter your full name.';return;}
+  if(!email||!email.includes('@')){err.textContent='Enter a valid email.';return;}
+  if(!phone||phone.length!==10||!/^[6-9]/.test(phone)){err.textContent='Enter a valid 10-digit mobile number.';return;}
+  if(pass.length<8){err.textContent='Password must be at least 8 characters.';return;}
+  err.textContent='';
+  regPhone = phone;
+  document.getElementById('regPhoneDisp').textContent='+91 '+phone;
+  showRStep(2);
+}
+
+function sendRegOTP() {
+  var err = document.getElementById('regErr2');
+  var btn = document.getElementById('sendRegOtpBtn');
+  btn.textContent='Sending…'; btn.disabled=true;
+  err.className='err'; err.style.color='var(--muted)'; err.textContent='Sending OTP to +91 '+regPhone+'…';
+  window._regPhone = regPhone;
+  fetch('https://msg91-proxy.doctorramesh5.workers.dev/?action=send&phone='+regPhone)
+    .then(function(r){return r.json();})
+    .then(function(d){
+      btn.textContent='Resend OTP'; btn.disabled=false;
+      if(d.success){
+        document.getElementById('regOtpBox').style.display='block';
+        err.style.color='var(--green)'; err.textContent='✓ OTP sent! Enter the 6-digit code.';
+      } else {
+        err.style.color='var(--red)'; err.textContent='Failed to send OTP. Try again.';
+      }
+    })
+    .catch(function(){
+      btn.textContent='Resend OTP'; btn.disabled=false;
+      err.style.color='var(--red)'; err.textContent='Network error. Try again.';
+    });
+}
+
+function createAccount() {
+  var digits = Array.from(document.querySelectorAll('.rotp')).map(function(i){return i.value;}).join('');
+  var err = document.getElementById('regErr2');
+  var phone = window._regPhone;
+  if(digits.length!==6){err.style.color='var(--red)';err.textContent='Enter the 6-digit OTP first.';return;}
+  if(!phone){err.style.color='var(--red)';err.textContent='Please send OTP first.';return;}
+  var btn = document.getElementById('createAccBtn');
+  btn.textContent='Verifying…'; btn.disabled=true;
+
+  fetch('https://msg91-proxy.doctorramesh5.workers.dev/?action=verify&phone='+phone+'&otp='+digits)
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.success){
+        // OTP verified — now create Firebase account
+        var name = document.getElementById('regName').value.trim();
+        var email = document.getElementById('regEmail').value.trim();
+        var pass = document.getElementById('regPass').value;
+        auth.createUserWithEmailAndPassword(email, pass)
+          .then(function(result){
+            return result.user.updateProfile({displayName: name});
+          })
+          .then(function(){
+            err.style.color='var(--green)'; err.textContent='✓ Account created!';
+            showRStep(3);
+            setTimeout(function(){ handleLoginSuccess(auth.currentUser); }, 1500);
+          })
+          .catch(function(e){
+            btn.textContent='Create Account →'; btn.disabled=false;
+            if(e.code==='auth/email-already-in-use') err.style.color='var(--red)', err.textContent='Email already registered. Please sign in.';
+            else err.style.color='var(--red)', err.textContent='Error: '+e.message;
+          });
+      } else {
+        btn.textContent='Create Account →'; btn.disabled=false;
+        err.style.color='var(--red)';
+        err.textContent = d.message==='OTP expired or not found' ? 'OTP expired. Resend.' : 'Wrong OTP. Try again.';
+      }
+    })
+    .catch(function(){
+      btn.textContent='Create Account →'; btn.disabled=false;
+      err.style.color='var(--red)'; err.textContent='Network error. Try again.';
+    });
+}
+function otpNav2(el,idx){if(el.value&&idx<5)document.querySelectorAll('.rotp')[idx+1].focus();}
+
+// ── PLAN SCREEN ───────────────────────────────────────
+var selectedPlan = null;
+
+function handleLoginSuccess(user) {
+  // Always show plan screen for new login
+  // Clear any old plan to force fresh selection
+  sessionStorage.removeItem('paype_plan');
+  sessionStorage.removeItem('paype_plan_price');
+  showPlanScreen(user);
+}
+
+function showPlanScreen(user) {
+  document.querySelector('.card').style.display = 'none';
+  document.querySelector('.theme-bar').style.display = 'none';
+  document.getElementById('planScreen').style.display = 'block';
+  var name = (user && (user.displayName || user.email || user.phoneNumber)) || 'Welcome!';
+  var email = (user && (user.email || user.phoneNumber)) || '';
+  document.getElementById('planUserName').textContent = name;
+  document.getElementById('planUserEmail').textContent = email;
+}
+
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.querySelectorAll('.plan-card').forEach(function(c) {
+    c.classList.remove('selected');
+  });
+  document.getElementById('planCard_' + plan).classList.add('selected');
+  document.getElementById('planContinueBtn').disabled = false;
+}
+
+function continueToDashboard() {
+  if (!selectedPlan) return;
+  sessionStorage.setItem('paype_plan', selectedPlan);
+  sessionStorage.setItem('paype_plan_price',
+    selectedPlan==='starter' ? '799' :
+    selectedPlan==='pro' ? '2999' : '8999'
+  );
+  window.location.href = '/app';
+}
 </script>
+
+<!-- ══ PLAN SELECTION SCREEN ══ -->
+<div id="planScreen">
+  <div class="plan-wrap">
+    <div class="plan-header">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px">
+        <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--red));display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:1.1rem;font-family:'Playfair Display',serif">P</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900">PayPe <span style="color:var(--gold)">Technologies</span></div>
+      </div>
+      <h2>Choose Your <span>Plan</span></h2>
+      <p>Select a plan to start building your app. You can upgrade anytime.</p>
+    </div>
+
+    <div class="plan-user-info">
+      <div class="pui-name" id="planUserName">Welcome!</div>
+      <div class="pui-email" id="planUserEmail"></div>
+    </div>
+
+    <div class="plan-grid">
+
+      <!-- STARTER -->
+      <div class="plan-card" id="planCard_starter" onclick="selectPlan('starter')">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price"><sup>₹</sup>799<span>/month</span></div>
+        <div class="plan-desc">Perfect for individuals & small projects</div>
+        <ul class="plan-features">
+          <li>3 Apps</li>
+          <li>10,000 Monthly Users</li>
+          <li>Basic Analytics</li>
+          <li>Email Support</li>
+          <li>SSL Certificate</li>
+          <li>Custom Domain</li>
+        </ul>
+        <button class="plan-select-btn">Choose Starter</button>
+      </div>
+
+      <!-- PRO -->
+      <div class="plan-card popular" id="planCard_pro" onclick="selectPlan('pro')">
+        <div class="popular-tag">⚡ Most Popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price"><sup>₹</sup>2,999<span>/month</span></div>
+        <div class="plan-desc">Best for growing businesses</div>
+        <ul class="plan-features">
+          <li>10 Apps</li>
+          <li>1,00,000 Monthly Users</li>
+          <li>Advanced Analytics</li>
+          <li>Priority Support</li>
+          <li>Payment Gateway</li>
+          <li>Push Notifications</li>
+          <li>Custom Domain</li>
+          <li>API Access</li>
+        </ul>
+        <button class="plan-select-btn">Choose Pro</button>
+      </div>
+
+      <!-- ENTERPRISE -->
+      <div class="plan-card" id="planCard_enterprise" onclick="selectPlan('enterprise')">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price"><sup>₹</sup>8,999<span>/month</span></div>
+        <div class="plan-desc">For large businesses & agencies</div>
+        <ul class="plan-features">
+          <li>Unlimited Apps</li>
+          <li>Unlimited Users</li>
+          <li>Full Analytics Suite</li>
+          <li>24/7 Dedicated Support</li>
+          <li>White Label</li>
+          <li>Custom Integrations</li>
+          <li>SLA Guarantee</li>
+          <li>Team Management</li>
+          <li>Priority Hosting</li>
+        </ul>
+        <button class="plan-select-btn">Choose Enterprise</button>
+      </div>
+
+    </div>
+
+    <div style="text-align:center">
+      <button class="plan-continue-btn" id="planContinueBtn" onclick="continueToDashboard()" disabled>
+        Continue to Dashboard →
+      </button>
+      <p style="color:var(--muted);font-size:.75rem;margin-top:12px">
+        🔒 Secure payment · Cancel anytime · 7-day free trial
+      </p>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
